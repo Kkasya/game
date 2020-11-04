@@ -1,4 +1,5 @@
 .container {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   width: 40rem;
@@ -9,4 +10,7 @@
    text-align: center;
    padding: 1rem;
 }
+}
+.hidden {
+  overflow: hidden;
 }
