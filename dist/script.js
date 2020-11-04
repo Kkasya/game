@@ -42,6 +42,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => /* binding */ create
 /* harmony export */ });
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -85,6 +93,20 @@ function create(elem, classes, childs, parent) {
     parent.appendChild(element);
   }
 
+  for (var _len = arguments.length, dataAttr = new Array(_len > 4 ? _len - 4 : 0), _key = 4; _key < _len; _key++) {
+    dataAttr[_key - 4] = arguments[_key];
+  }
+
+  if (dataAttr.length) {
+    dataAttr.forEach(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          attrName = _ref2[0],
+          attrValue = _ref2[1];
+
+      return element.setAttribute(attrName, attrValue);
+    });
+  }
+
   return element;
 }
 
@@ -113,6 +135,7 @@ function initialArray(numberRows) {
     initArray.push(i + 1);
   }
 
+  initArray[initArray.length - 1] = ' ';
   return initArray;
 }
 function randomArray(numberRows) {
@@ -126,7 +149,7 @@ function randomArray(numberRows) {
     if (randIndex != emptyIndex) {
       if (Math.abs(emptyIndex - randIndex) == 4 || Math.abs(emptyIndex - randIndex) == 1) {
         randArray[emptyIndex] = randArray[randIndex];
-        randArray[randIndex] = '';
+        randArray[randIndex] = ' ';
         emptyIndex = randIndex;
       }
     }
@@ -169,6 +192,7 @@ var footer = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'foote
 var gameBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'start', 'New game');
 var soundBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'sound', 'Sound');
 var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [gameBtn, soundBtn]);
+var main = '';
 
 var Puzzle = /*#__PURE__*/function () {
   function Puzzle(numberRows) {
@@ -176,6 +200,7 @@ var Puzzle = /*#__PURE__*/function () {
 
     this.numberRows = numberRows;
     this.initial = true;
+    this.itemEmpty;
   }
 
   _createClass(Puzzle, [{
@@ -186,14 +211,22 @@ var Puzzle = /*#__PURE__*/function () {
       var childMain = [];
 
       var childs = function childs() {
-        array.forEach(function (i) {
-          childMain.push((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'item', "".concat(i)));
+        array.forEach(function (i, index) {
+          var item = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'item', "".concat(i));
+          item.style.order = index;
+          childMain.push(item);
+          item.addEventListener('click', function () {
+            return _this.replace(item);
+          });
+        });
+        _this.itemEmpty = childMain.find(function (child) {
+          return child.innerHTML == " ";
         });
         childMain.push(menu);
         return childMain;
       };
 
-      var main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', childs());
+      main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', childs());
       document.body.prepend((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'wrapper_body', [header, main, footer]));
       if (this.initial) gameBtn.addEventListener('click', function () {
         return _this.showGame();
@@ -207,6 +240,19 @@ var Puzzle = /*#__PURE__*/function () {
       this.initial = false;
       document.body.innerHTML = '';
       this.init(_game_arrays__WEBPACK_IMPORTED_MODULE_2__.randomArray(this.numberRows));
+    }
+  }, {
+    key: "replace",
+    value: function replace(item) {
+      var empty = this.itemEmpty.style.order;
+      var itemOrder = item.style.order;
+
+      if (item.style.order != empty) {
+        if (Math.abs(empty - itemOrder) == 4 || Math.abs(empty - itemOrder) == 1) {
+          this.itemEmpty.style.setProperty('order', itemOrder);
+          item.style.setProperty('order', empty);
+        }
+      }
     }
   }]);
 

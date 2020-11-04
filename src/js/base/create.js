@@ -1,4 +1,4 @@
-export default function create(elem, classes, childs, parent) {
+export default function create(elem, classes, childs, parent, ...dataAttr) {
     let element = null;
     try {
         element = document.createElement(elem);
@@ -21,6 +21,10 @@ export default function create(elem, classes, childs, parent) {
 
     if(parent) {
         parent.appendChild(element);
+    }
+
+    if(dataAttr.length) {
+        dataAttr.forEach(([attrName, attrValue]) => element.setAttribute(attrName, attrValue));
     }
     return element;
 }

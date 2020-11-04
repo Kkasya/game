@@ -3,6 +3,7 @@ export function initialArray(numberRows) {
     for (let i = 0; i < numberRows * numberRows; i++) {
         initArray.push(i + 1);
     }
+    initArray[initArray.length - 1] = ' ';
     return initArray;
 }
 
@@ -16,7 +17,7 @@ export function randomArray(numberRows) {
         if (randIndex != emptyIndex) {
             if (Math.abs(emptyIndex - randIndex) == 4 || Math.abs(emptyIndex - randIndex) == 1) {
                 randArray[emptyIndex] = randArray[randIndex];
-                randArray[randIndex] = '';
+                randArray[randIndex] = ' ';
                 emptyIndex = randIndex;
             }
         }
