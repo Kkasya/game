@@ -1,4 +1,44 @@
-.solution {
+.menuBtn {
   font-size: $font-size-h2;
+  background-color: #104735;
   margin: 1rem 0;
+  position: relative;
+  color: #2ac992;
+  overflow: hidden;
+  text-align: center;
+  cursor: pointer;
+  width: 15rem;
+  height: 5rem;
+  border: none;
+  border-radius: 1rem;
+  outline: none;
+
+  &:hover {
+    background-color: rgb(28,107,114);
+  }
+  &:after {
+    content: "";
+    background: #2ac992;
+    position: absolute;
+    width: 15rem;
+    height: 10rem;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0;
+    margin: auto;
+    border-radius: 50%;
+    transform: scale(1);
+    transition: all 0.75s ease-in-out;
+    //outline: none;
+  }
+
+  &:active:after {
+    transform: scale(0);
+    opacity: 1;
+    transition: 0s;
+    //outline: none;
+
+  }
 }

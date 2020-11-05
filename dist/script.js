@@ -160,22 +160,82 @@ function randomArray(numberRows) {
 
 /***/ }),
 
+/***/ "./src/js/game/timeStep.js":
+/*!*********************************!*\
+  !*** ./src/js/game/timeStep.js ***!
+  \*********************************/
+/*! namespace exports */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => /* binding */ getTime
+/* harmony export */ });
+var hour = 0;
+var min = 0;
+var sec = 0;
+function getTime(stopwatchNew) {
+  if (stopwatchNew) {
+    hour = 0;
+    min = 0;
+    sec = 0;
+  }
+
+  var h,
+      m,
+      s = '';
+  sec++;
+
+  if (sec >= 60) {
+    min++;
+    sec -= 60;
+  }
+
+  if (min >= 60) {
+    hour++;
+    min -= 60;
+  }
+
+  if (sec < 10) {
+    s = ':0' + sec;
+  } else s = ':' + sec;
+
+  if (min < 10) {
+    m = ':0' + min;
+  } else m = ':' + min;
+
+  if (hour < 10) {
+    h = "0" + hour;
+  } else h = hour;
+
+  return h + m + s;
+}
+
+/***/ }),
+
 /***/ "./src/js/main.js":
 /*!************************!*\
   !*** ./src/js/main.js ***!
   \************************/
 /*! namespace exports */
 /*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export steps [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export times [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "times": () => /* binding */ times,
+/* harmony export */   "steps": () => /* binding */ steps,
 /* harmony export */   "default": () => /* binding */ Puzzle
 /* harmony export */ });
 /* harmony import */ var _base_create__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base/create */ "./src/js/base/create.js");
-/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../index.js */ "./src/index.js");
+/* harmony import */ var _game_timeStep__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./game/timeStep */ "./src/js/game/timeStep.js");
 /* harmony import */ var _game_arrays__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./game/arrays */ "./src/js/game/arrays.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -187,23 +247,44 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 var audio = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('audio', '');
-var header = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'header', [audio, (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('h1', '', 'Gem Puzzle'), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'time-step', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'time', 'time'), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'step', 'step')])]);
-var footer = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'footer', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'solution', 'Solution')]);
-var gameBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'start', 'New game');
-var soundBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'sound', 'Sound');
-var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [gameBtn, soundBtn]);
+var times = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'times', ' 00:00:00');
+var timeBlock = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'time', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', null, 'Time: '), times]);
+var steps = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'steps', '0');
+var stepBlock = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'step', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', null, 'Steps: '), steps]);
+var header = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'header', [audio, (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('h1', '', 'Gem Puzzle'), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'time-step', [timeBlock, stepBlock])]);
+var menuBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'menuBtn', 'Menu');
+var footer = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'footer', menuBtn);
+var continueBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'hide', 'Continue');
+var gameBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'start', 'New game');
+var solutionBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'solution', 'Solution');
+var saveBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'save', 'Save game');
+var soundBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'sound', 'Sound');
+var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [continueBtn, gameBtn, saveBtn, solutionBtn, soundBtn]);
 var main = '';
+var stopwatchNew = false;
 
 var Puzzle = /*#__PURE__*/function () {
   function Puzzle(numberRows) {
     _classCallCheck(this, Puzzle);
 
     this.numberRows = numberRows;
-    this.initial = true;
     this.itemEmpty;
+    this.stopwatch;
+    this.move = 0;
   }
 
   _createClass(Puzzle, [{
+    key: "stopwatchF",
+    value: function stopwatchF() {
+      clearInterval(this.stopwatch);
+      this.stopwatch = setInterval(function () {
+        times.innerHTML = (0,_game_timeStep__WEBPACK_IMPORTED_MODULE_1__.default)(stopwatchNew);
+      }, 1000);
+      setTimeout(function () {
+        stopwatchNew = false;
+      }, 1500);
+    }
+  }, {
     key: "init",
     value: function init(array) {
       var _this = this;
@@ -222,24 +303,43 @@ var Puzzle = /*#__PURE__*/function () {
         _this.itemEmpty = childMain.find(function (child) {
           return child.innerHTML == " ";
         });
+
+        _this.itemEmpty.classList.add('hide');
+
         childMain.push(menu);
         return childMain;
       };
 
       main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', childs());
       document.body.prepend((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'wrapper_body', [header, main, footer]));
-      if (this.initial) gameBtn.addEventListener('click', function () {
-        return _this.showGame();
+      gameBtn.addEventListener('click', function () {
+        times.innerHTML = '00:00:00';
+        _this.move = 0;
+        stopwatchNew = true;
+
+        _this.showGame();
       });
-      return this;
+      menuBtn.addEventListener('click', function () {
+        if (menu.classList.contains('hide')) {
+          menu.classList.remove('hide');
+          clearInterval(_this.stopwatch);
+          continueBtn.classList.remove('hide');
+        }
+      });
+      continueBtn.addEventListener('click', function () {
+        menu.classList.add('hide');
+
+        _this.stopwatchF();
+      });
     }
   }, {
     key: "showGame",
     value: function showGame() {
       menu.classList.add('hide');
-      this.initial = false;
       document.body.innerHTML = '';
       this.init(_game_arrays__WEBPACK_IMPORTED_MODULE_2__.randomArray(this.numberRows));
+      steps.innerHTML = this.move;
+      this.stopwatchF();
     }
   }, {
     key: "replace",
@@ -251,6 +351,8 @@ var Puzzle = /*#__PURE__*/function () {
         if (Math.abs(empty - itemOrder) == 4 || Math.abs(empty - itemOrder) == 1) {
           this.itemEmpty.style.setProperty('order', itemOrder);
           item.style.setProperty('order', empty);
+          this.move++;
+          steps.innerHTML = this.move;
         }
       }
     }
@@ -336,8 +438,8 @@ __webpack_require__.r(__webpack_exports__);
 /************************************************************************/
 /******/ 	// startup
 /******/ 	// Load entry module
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	__webpack_require__("./src/index.js");
+/******/ 	// This entry module used 'exports' so it can't be inlined
 /******/ })()
 ;
 //# sourceMappingURL=script.js.map

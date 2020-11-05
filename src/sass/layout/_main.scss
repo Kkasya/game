@@ -3,14 +3,28 @@
   display: flex;
   flex-wrap: wrap;
   width: 40rem;
-  font-size: $font-size-h2;
- >* {
-  flex-basis: calc(25% - 2.2rem);
+  height: 40rem;
+  font-size: $font-size-digital;
+  text-align: center;
+  background: rgb(194,195,34);
+  background: linear-gradient(0deg, rgba(194,195,34,1) 0%, rgba(130,98,194,1) 1%, rgba(34,193,195,1) 50%, rgba(54,47,193,1) 100%, rgba(253,187,45,1) 100%);
+  .item {
+  flex-basis: calc(25% - 5.2rem);
    border: 1px solid;
-   text-align: center;
-   padding: 1rem;
+    border-radius: 10%;
+    text-align: center;
+    padding: 2.5rem;
+    background: rgb(28,107,114) radial-gradient(150% 100% at 50% 5px, rgba(255,255,255,.2), rgba(0,0,0,0));
+    box-shadow: inset rgba(0,0,0,.6) 0 -2px 5px, inset rgba(252,255,255,.7) 0 2px 5px, rgba(0,0,0,.8) 0 2px 5px -1px;
+    color: #2ac992;
+    text-shadow: 0 1px rgba(255,255,255,.2), 0 -1px rgba(0,0,0,.8);
+    user-select: none;
+    @include media-tablet {
+      flex-basis: calc(25% - 5.3rem);
+    }
+  }
+
 }
-}
-.hidden {
-  overflow: hidden;
+.times, .steps {
+  font-weight: bold;
 }

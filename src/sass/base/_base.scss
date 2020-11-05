@@ -3,11 +3,26 @@
   padding: 0;
 }
 html {
+  font-family: Lato, sans-serif;
   font-size: $font-size-default;
+  box-sizing: border-box;
+  @include media-tablet {
+    font-size: 8px;
+  }
+  @include media-mobile {
+    font-size: 7px;
+  }
 }
 body {
   width: 100%;
+  background:url('/src/images/wooden.jpg') no-repeat;
+  background-size: cover;
 }
 h1 {
   font-size: $font-size-h1;
+  text-align: center;
+  color: darkcyan;
+  text-shadow: 0 0 0.6rem #fff,
+  0 0 0.3rem #fff,
+  0 0 0.2rem #fff;
 }

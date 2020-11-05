@@ -2,6 +2,7 @@ const  webpack = require('webpack');
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 
 module.exports = (env, options) => {
@@ -27,12 +28,37 @@ module.exports = (env, options) => {
                             presets: ['@babel/preset-env']
                         }
                     }
-                }, {
+                 // }, {
+                 //     test: /\.(png|svg|jpe?g|gif)$/,
+                 //     loader: "resolve-url-loader", //resolve-url-loader needs to come *BEFORE* sass-loader
+                 //     options: {
+                 //         sourceMap: true
+                 //     }
+
+                 }, {
                     test: /\.scss$/,
                     use: [
-                        MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'
+                        {
+                            loader: MiniCssExtractPlugin.loader,
+                            options: {
+                                publicPath: ''
+                            }
+                        },{
+                            loader: "css-loader"
+                        },{
+                            loader: "sass-loader"
+                        }
                     ]
+                }, {
+                     test: /\.(png|svg|jpe?g|gif)$/,
+
+                     use: [
+
+                             'file-loader'
+
+                     ]
                 }
+
             ]
         },
 
@@ -41,7 +67,11 @@ module.exports = (env, options) => {
             new MiniCssExtractPlugin( {
                 filename: 'style.css'
             }),
-        ]
+            new HtmlWebpackPlugin( {
+                template: 'index.html'
+            }),
+
+    ]
     }
     return config;
 }

@@ -1,25 +1,43 @@
 import create from "./base/create";
-import numberRows from '../index.js';
+import getTime from './game/timeStep';
 import * as arrays from './game/arrays';
 
 const audio = create('audio', '');
+export const times = create('span', 'times', ' 00:00:00');
+const timeBlock = create('div', 'time',  [create('span', null, 'Time: '),times]);
+export const steps = create('span', 'steps', '0');
+const stepBlock = create('div', 'step',  [create('span', null, 'Steps: '), steps]);
 const header = create('div', 'header',
     [audio,
         create('h1', '', 'Gem Puzzle'),
-    create('div', 'time-step',
-        [create('span', 'time', 'time'),
-        create('span', 'step', 'step')])]);
-const footer = create('div', 'footer', [create('button', 'solution', 'Solution')]);
-const gameBtn = create('button', 'start', 'New game');
-const soundBtn = create('button', 'sound', 'Sound');
-const menu =  create('div', 'menu', [gameBtn, soundBtn]);
+    create('div', 'time-step',[timeBlock, stepBlock])]);
+const menuBtn = create('button', 'menuBtn', 'Menu');
+const footer = create('div', 'footer', menuBtn);
+
+const continueBtn = create('div','hide', 'Continue');
+const gameBtn = create('div', 'start', 'New game');
+const solutionBtn = create('div', 'solution', 'Solution');
+const saveBtn = create('div', 'save', 'Save game');
+const soundBtn = create('div', 'sound', 'Sound');
+const menu =  create('div', 'menu', [continueBtn, gameBtn, saveBtn, solutionBtn, soundBtn]);
 let main = '';
+
+let stopwatchNew = false;
+
+
 
 export default class Puzzle {
     constructor(numberRows) {
         this.numberRows = numberRows;
-        this.initial = true;
         this.itemEmpty;
+        this.stopwatch;
+        this.move = 0;
+    }
+
+    stopwatchF() {
+        clearInterval(this.stopwatch);
+        this.stopwatch = setInterval(function () {times.innerHTML = getTime(stopwatchNew)}, 1000);
+        setTimeout((() => { stopwatchNew = false;}), 1500);
     }
 
     init(array) {
@@ -33,21 +51,41 @@ export default class Puzzle {
             });
 
             this.itemEmpty = childMain.find(child => child.innerHTML == " ");
+            this.itemEmpty.classList.add('hide');
             childMain.push(menu);
             return childMain;
         }
         main = create('main', 'container', childs());
         document.body.prepend(create('div', 'wrapper_body', [header, main, footer]));
 
-        if(this.initial) gameBtn.addEventListener('click', () => this.showGame());
-        return this;
+        gameBtn.addEventListener('click', () => {
+            times.innerHTML = '00:00:00';
+            this.move = 0;
+            stopwatchNew = true;
+            this.showGame();
+        });
+
+        menuBtn.addEventListener('click', () => {
+            if( menu.classList.contains('hide')) {
+                menu.classList.remove('hide');
+               clearInterval(this.stopwatch);
+               continueBtn.classList.remove('hide');
+            }
+        });
+
+        continueBtn.addEventListener('click', () => {
+            menu.classList.add('hide');
+            this.stopwatchF();
+        })
     }
 
     showGame() {
-        menu.classList.add('hide');
-        this.initial = false;
-        document.body.innerHTML = '';
-        this.init(arrays.randomArray(this.numberRows));
+            menu.classList.add('hide');
+            document.body.innerHTML = '';
+            this.init(arrays.randomArray(this.numberRows));
+            steps.innerHTML = this.move;
+            this.stopwatchF();
+
     }
 
     replace(item) {
@@ -57,6 +95,8 @@ export default class Puzzle {
             if (Math.abs(empty - itemOrder) == 4 || Math.abs(empty - itemOrder) == 1) {
                 this.itemEmpty.style.setProperty('order', itemOrder);
                 item.style.setProperty('order', empty);
+                this.move++;
+                steps.innerHTML = this.move;
             }
         }
     }
