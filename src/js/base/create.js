@@ -7,7 +7,7 @@ export default function create(elem, classes, childs, parent, ...dataAttr) {
     }
 
     if(classes) {
-        element.classList.add(...classes.split( ));
+        element.classList.add(...classes.split(' '));
     }
     if (childs && Array.isArray(childs)) {
         childs.forEach((child) => {

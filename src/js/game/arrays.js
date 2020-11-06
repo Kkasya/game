@@ -12,7 +12,7 @@ export function randomArray(numberRows) {
     let emptyIndex = initArray.length - 1;
     const randArray = initArray;
 
-    for (let i = 0; i < 2000; i++) {
+    for (let i = 0; i < 5; i++) {
         const randIndex = Math.floor(Math.random()*Math.floor(initArray.length));
         if (randIndex != emptyIndex) {
             if (Math.abs(emptyIndex - randIndex) == 4 || Math.abs(emptyIndex - randIndex) == 1) {

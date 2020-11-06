@@ -1,13 +1,23 @@
-
 let hour = 0;
 let min = 0;
 let sec = 0;
 
-export default function getTime(stopwatchNew) {
+export default function getTime(stopwatchNew, stopwatchSave) {
     if (stopwatchNew) {
         hour = 0;
         min = 0;
         sec = 0;
+    }
+    if (stopwatchSave){
+        if (localStorage.getItem('sec')) {
+            sec = +localStorage.getItem('sec');
+        }
+        if (localStorage.getItem('min')) {
+            min = +localStorage.getItem('min');
+        }
+        if (localStorage.getItem('hour')) {
+            hour = +localStorage.getItem('hour');
+        }
     }
 
     let h, m, s = '';
