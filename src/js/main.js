@@ -1,10 +1,11 @@
 import create from "./base/create";
 import getTime from './game/timeStep';
 import * as arrays from './game/arrays';
+import getScores from './game/scores';
 
-export const times = create('span', 'times', ' 00:00:00');
+const times = create('span', 'times', ' 00:00:00');
 const timeBlock = create('div', 'time',  [create('span', null, 'Time: '),times]);
-export const steps = create('span', 'steps', '0');
+const steps = create('span', 'steps', '0');
 const stepBlock = create('div', 'step',  [create('span', null, 'Steps: '), steps]);
 const header = create('div', 'header',
     [ create('h1', '', 'Gem Puzzle'),
@@ -23,15 +24,31 @@ const game8Btn = create('div', 'start', '8х8');
 const gameSize = create('div', 'gameSize none', [game3Btn, game4Btn, game5Btn, game6Btn,game7Btn, game8Btn]);
 const solutionBtn = create('div', 'solution', 'Solution');
 const saveBtn = create('div', 'save', 'Save game');
+const scoreBtn = create('div', '', 'Best scores');
 const audioIcon = create('div', 'none-audio');
 const audioBtn = create('div', '', 'Sound');
 const soundBtn = create('div', 'sound', [audioIcon, audioBtn]);
-const menu =  create('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, soundBtn]);
+const menu =  create('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
 
 const message1 = create('div', '', `Yippee!`);
 const message2 = create('div', 'message', `You solved the puzzle in `);
-const messageResult = create('div', '', ' ');
-const messageWin = create('div', 'messageWin hide',[message1, message2, messageResult]);
+const messageResult = create('div');
+const question = create('p', '', 'What is your name?');
+const nameInput = create('span', 'name', null, null, ['contenteditable', true]);
+const askName = create('div', 'ask-name', [question, nameInput]);
+const messageWin = create('div', 'messageWin hide',[message1, message2, messageResult, askName]);
+
+const messageSave = create('div', 'message-save hide', 'Your game is saved');
+
+const nameTable = create('span', 'name-table', 'Best scores');
+const trHeader = create('tr', 'table-header', [
+    create('td', '', "№"),
+    create('td', '', 'Name'),
+    create('td', '', 'Size'),
+    create('td', '', 'Moves')
+]);
+const backBtn = create('div', 'back', 'Back');
+let table;
 
 let stopwatchNew = false;
 let stopwatchSave = false;
@@ -44,6 +61,7 @@ export default class Puzzle {
         this.numberRows = numberRows;
         this.move = 0;
         this.isSound = false;
+        this.game = false;
     }
 
     stopwatchF() {
@@ -83,10 +101,13 @@ export default class Puzzle {
         menuBtn.addEventListener('click', () => this.startMenu());
         continueBtn.addEventListener('click', () => this.continueGame());
         saveBtn.addEventListener('click', () => this.saveGame());
+        scoreBtn.addEventListener('click', () => this.showScores());
+        backBtn.addEventListener('click', () => this.startMenu());
         soundBtn.addEventListener('click', () => {
             if (!this.isSound) this.playSound();
             else this.stopSound();
         });
+        nameInput.addEventListener('keypress', e => { this.setName(e) });
     }
 
     getItems(array) {
@@ -100,8 +121,7 @@ export default class Puzzle {
 
         this.itemEmpty = childMain.find(child => child.innerHTML=== " ");
         this.itemEmpty.classList.add('hide');
-        childMain.push(menu);
-        childMain.push(messageWin);
+        childMain.push(menu, messageWin, messageSave);
         return childMain;
     }
 
@@ -111,6 +131,7 @@ export default class Puzzle {
             this.init(arrays.randomArray(this.numberRows));
             steps.innerHTML = this.move;
             this.stopwatchF();
+            this.game = true;
     }
 
     replace(item) {
@@ -149,15 +170,7 @@ export default class Puzzle {
         });
 
         if (gameSaved.toString() == this.initArray.toString()) {
-            clearInterval(this.stopwatch);
-            const hour = +times.innerHTML.slice(0,2);
-            const min = times.innerHTML.slice(3,5);
-            const sec = times.innerHTML.slice(6);
-            if (hour) messageResult.innerHTML = `${hour}:`;
-            messageResult.innerHTML += `${min}:`;
-            if (sec) messageResult.innerHTML += `${sec} `;
-            messageResult.innerHTML += `and ${this.move} moves`;
-            messageWin.classList.remove('hide');
+            this.showMessage();
         }
     }
 
@@ -208,17 +221,16 @@ export default class Puzzle {
     }
 
     startMenu() {
+        clearInterval(this.stopwatch);
         if (!menu.classList.contains('hide') && !continueBtn.classList.contains('hide')) {
            setTimeout(() => this.continueGame(), 150);
         } else {
            setTimeout( () => {
                 if (menu.classList.contains('hide')) {
+                        if (table && !table.classList.contains('none')) table.classList.add('none');
                     if (!messageWin.classList.contains('hide')) {
                         messageWin.classList.add('hide');
-                    } else {
-                        clearInterval(this.stopwatch);
-                        continueBtn.classList.remove('hide');
-                    }
+                    } else if (localStorage.getItem('array') || this.game) continueBtn.classList.remove('hide');
                     menu.classList.remove('hide');
                 }}, 100);
         }
@@ -234,13 +246,42 @@ export default class Puzzle {
         this.main.childNodes.forEach(item => {
             if (item.style.order) gameSaved[item.style.order] = item.innerHTML;
         });
-       localStorage.setItem('array', JSON.stringify(gameSaved));
+        localStorage.setItem('array', JSON.stringify(gameSaved));
         localStorage.setItem('move', this.move);
         localStorage.setItem('hour', times.innerHTML.slice(0,2));
         localStorage.setItem('min', times.innerHTML.slice(3,5));
         localStorage.setItem('sec', times.innerHTML.slice(6));
         localStorage.setItem('numberRows', this.numberRows);
+        messageSave.classList.remove('hide');
+        messageSave.classList.add('animation');
+        setTimeout(() => {
+            messageSave.classList.add('hide');
+            messageSave.classList.remove('animation');
+        }, 2000);
+    }
 
+    showScores() {
+        const scoreArray = getScores();
+        const childTr = [];
+        for (let i = 0; i < 10; i++) {
+            const tr = (create('tr', 'tr-table', create('td', 'number-table', `${i + 1} `)));
+
+                if (scoreArray[i]) {
+                   if (scoreArray[i].name) tr.appendChild(create('td', 'name-score', `${scoreArray[i].name}`));
+                   else tr.appendChild(create('td', 'name-score', 'Anonymous'));
+                    tr.appendChild(create('td', null, `${scoreArray[i].size}`));
+                    tr.appendChild(create('td', null, `${scoreArray[i].moves}`));
+                } else {
+                    for (let j = 0; j < 3; j++) {
+                        tr.appendChild(create('td'));                }
+            }
+                childTr.push(tr);
+        }
+        table = create('div', 'table none', childTr);
+        table.prepend(nameTable, trHeader);
+        table.appendChild(backBtn);
+        this.main.appendChild(table);
+        table.classList.remove('none');
         menu.classList.add('hide');
     }
 
@@ -265,4 +306,36 @@ export default class Puzzle {
         audioField.currentTime = 0;
     }, 200);
     }
-};
+
+    showMessage() {
+        clearInterval(this.stopwatch);
+        const hour = +times.innerHTML.slice(0,2);
+        const min = times.innerHTML.slice(3,5);
+        const sec = times.innerHTML.slice(6);
+        if (hour) messageResult.innerHTML = `${hour}:`;
+        messageResult.innerHTML += `${min}:`;
+        if (sec) messageResult.innerHTML += `${sec} `;
+        messageResult.innerHTML += `and ${this.move} moves`;
+        messageWin.classList.remove('hide');
+    }
+
+    addScore(name) {
+        const score = {
+            name: name,
+            size: `${this.numberRows}x${this.numberRows}`,
+            moves: this.move
+        }
+        localStorage.setItem(`${localStorage.length + 1}`, JSON.stringify(score));
+    }
+
+    setName(e) {
+        let name;
+        if (e.type === 'keypress') {
+            name = nameInput.innerText;
+        }
+       if (e.code === 'Enter') {
+           this.startMenu();
+           this.addScore(name);
+        }
+}
+ };

@@ -160,6 +160,40 @@ function randomArray(numberRows) {
 
 /***/ }),
 
+/***/ "./src/js/game/scores.js":
+/*!*******************************!*\
+  !*** ./src/js/game/scores.js ***!
+  \*******************************/
+/*! namespace exports */
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+/*! other exports [not provided] [no usage info] */
+/*! runtime requirements: __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => /* binding */ getScores
+/* harmony export */ });
+function getScores() {
+  var scoreArray = [];
+
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    var score = void 0;
+
+    if (+key) {
+      score = JSON.parse(localStorage.getItem(key));
+      if (score.moves) scoreArray.push(score);
+    }
+  }
+
+  return scoreArray.sort(function (a, b) {
+    return a.moves > b.moves ? 1 : -1;
+  });
+}
+
+/***/ }),
+
 /***/ "./src/js/game/timeStep.js":
 /*!*********************************!*\
   !*** ./src/js/game/timeStep.js ***!
@@ -236,26 +270,24 @@ function getTime(stopwatchNew, stopwatchSave) {
   \************************/
 /*! namespace exports */
 /*! export default [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export steps [provided] [no usage info] [missing usage info prevents renaming] */
-/*! export times [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_require__, __webpack_require__.r, __webpack_exports__, __webpack_require__.d, __webpack_require__.* */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "times": () => /* binding */ times,
-/* harmony export */   "steps": () => /* binding */ steps,
 /* harmony export */   "default": () => /* binding */ Puzzle
 /* harmony export */ });
 /* harmony import */ var _base_create__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base/create */ "./src/js/base/create.js");
 /* harmony import */ var _game_timeStep__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./game/timeStep */ "./src/js/game/timeStep.js");
 /* harmony import */ var _game_arrays__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./game/arrays */ "./src/js/game/arrays.js");
+/* harmony import */ var _game_scores__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./game/scores */ "./src/js/game/scores.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 
 
 
@@ -278,14 +310,23 @@ var game8Btn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'sta
 var gameSize = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'gameSize none', [game3Btn, game4Btn, game5Btn, game6Btn, game7Btn, game8Btn]);
 var solutionBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'solution', 'Solution');
 var saveBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'save', 'Save game');
+var scoreBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', 'Best scores');
 var audioIcon = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'none-audio');
 var audioBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', 'Sound');
 var soundBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'sound', [audioIcon, audioBtn]);
-var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, soundBtn]);
+var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
 var message1 = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', "Yippee!");
 var message2 = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'message', "You solved the puzzle in ");
-var messageResult = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', ' ');
-var messageWin = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'messageWin hide', [message1, message2, messageResult]);
+var messageResult = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div');
+var question = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('p', '', 'What is your name?');
+var nameInput = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'name', null, null, ['contenteditable', true]);
+var askName = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'ask-name', [question, nameInput]);
+var messageWin = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'messageWin hide', [message1, message2, messageResult, askName]);
+var messageSave = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'message-save hide', 'Your game is saved');
+var nameTable = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'name-table', 'Best scores');
+var trHeader = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('tr', 'table-header', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', '', "№"), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', '', 'Name'), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', '', 'Size'), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', '', 'Moves')]);
+var backBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'back', 'Back');
+var table;
 var stopwatchNew = false;
 var stopwatchSave = false;
 var audioItem = new Audio('./src/sounds/move.wav');
@@ -298,6 +339,7 @@ var Puzzle = /*#__PURE__*/function () {
     this.numberRows = numberRows;
     this.move = 0;
     this.isSound = false;
+    this.game = false;
   }
 
   _createClass(Puzzle, [{
@@ -348,8 +390,17 @@ var Puzzle = /*#__PURE__*/function () {
       saveBtn.addEventListener('click', function () {
         return _this.saveGame();
       });
+      scoreBtn.addEventListener('click', function () {
+        return _this.showScores();
+      });
+      backBtn.addEventListener('click', function () {
+        return _this.startMenu();
+      });
       soundBtn.addEventListener('click', function () {
         if (!_this.isSound) _this.playSound();else _this.stopSound();
+      });
+      nameInput.addEventListener('keypress', function (e) {
+        _this.setName(e);
       });
     }
   }, {
@@ -370,8 +421,7 @@ var Puzzle = /*#__PURE__*/function () {
         return child.innerHTML === " ";
       });
       this.itemEmpty.classList.add('hide');
-      childMain.push(menu);
-      childMain.push(messageWin);
+      childMain.push(menu, messageWin, messageSave);
       return childMain;
     }
   }, {
@@ -382,6 +432,7 @@ var Puzzle = /*#__PURE__*/function () {
       this.init(_game_arrays__WEBPACK_IMPORTED_MODULE_2__.randomArray(this.numberRows));
       steps.innerHTML = this.move;
       this.stopwatchF();
+      this.game = true;
     }
   }, {
     key: "replace",
@@ -429,15 +480,7 @@ var Puzzle = /*#__PURE__*/function () {
       });
 
       if (gameSaved.toString() == this.initArray.toString()) {
-        clearInterval(this.stopwatch);
-        var hour = +times.innerHTML.slice(0, 2);
-        var min = times.innerHTML.slice(3, 5);
-        var sec = times.innerHTML.slice(6);
-        if (hour) messageResult.innerHTML = "".concat(hour, ":");
-        messageResult.innerHTML += "".concat(min, ":");
-        if (sec) messageResult.innerHTML += "".concat(sec, " ");
-        messageResult.innerHTML += "and ".concat(this.move, " moves");
-        messageWin.classList.remove('hide');
+        this.showMessage();
       }
     }
   }, {
@@ -500,6 +543,8 @@ var Puzzle = /*#__PURE__*/function () {
     value: function startMenu() {
       var _this5 = this;
 
+      clearInterval(this.stopwatch);
+
       if (!menu.classList.contains('hide') && !continueBtn.classList.contains('hide')) {
         setTimeout(function () {
           return _this5.continueGame();
@@ -507,12 +552,11 @@ var Puzzle = /*#__PURE__*/function () {
       } else {
         setTimeout(function () {
           if (menu.classList.contains('hide')) {
+            if (table && !table.classList.contains('none')) table.classList.add('none');
+
             if (!messageWin.classList.contains('hide')) {
               messageWin.classList.add('hide');
-            } else {
-              clearInterval(_this5.stopwatch);
-              continueBtn.classList.remove('hide');
-            }
+            } else if (localStorage.getItem('array') || _this5.game) continueBtn.classList.remove('hide');
 
             menu.classList.remove('hide');
           }
@@ -538,6 +582,40 @@ var Puzzle = /*#__PURE__*/function () {
       localStorage.setItem('min', times.innerHTML.slice(3, 5));
       localStorage.setItem('sec', times.innerHTML.slice(6));
       localStorage.setItem('numberRows', this.numberRows);
+      messageSave.classList.remove('hide');
+      messageSave.classList.add('animation');
+      setTimeout(function () {
+        messageSave.classList.add('hide');
+        messageSave.classList.remove('animation');
+      }, 2000);
+    }
+  }, {
+    key: "showScores",
+    value: function showScores() {
+      var scoreArray = (0,_game_scores__WEBPACK_IMPORTED_MODULE_3__.default)();
+      var childTr = [];
+
+      for (var i = 0; i < 10; i++) {
+        var tr = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('tr', 'tr-table', (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', 'number-table', "".concat(i + 1, " ")));
+
+        if (scoreArray[i]) {
+          if (scoreArray[i].name) tr.appendChild((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', 'name-score', "".concat(scoreArray[i].name)));else tr.appendChild((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', 'name-score', 'Anonymous'));
+          tr.appendChild((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', null, "".concat(scoreArray[i].size)));
+          tr.appendChild((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td', null, "".concat(scoreArray[i].moves)));
+        } else {
+          for (var j = 0; j < 3; j++) {
+            tr.appendChild((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('td'));
+          }
+        }
+
+        childTr.push(tr);
+      }
+
+      table = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'table none', childTr);
+      table.prepend(nameTable, trHeader);
+      table.appendChild(backBtn);
+      this.main.appendChild(table);
+      table.classList.remove('none');
       menu.classList.add('hide');
     }
   }, {
@@ -567,6 +645,43 @@ var Puzzle = /*#__PURE__*/function () {
         audioField.pause();
         audioField.currentTime = 0;
       }, 200);
+    }
+  }, {
+    key: "showMessage",
+    value: function showMessage() {
+      clearInterval(this.stopwatch);
+      var hour = +times.innerHTML.slice(0, 2);
+      var min = times.innerHTML.slice(3, 5);
+      var sec = times.innerHTML.slice(6);
+      if (hour) messageResult.innerHTML = "".concat(hour, ":");
+      messageResult.innerHTML += "".concat(min, ":");
+      if (sec) messageResult.innerHTML += "".concat(sec, " ");
+      messageResult.innerHTML += "and ".concat(this.move, " moves");
+      messageWin.classList.remove('hide');
+    }
+  }, {
+    key: "addScore",
+    value: function addScore(name) {
+      var score = {
+        name: name,
+        size: "".concat(this.numberRows, "x").concat(this.numberRows),
+        moves: this.move
+      };
+      localStorage.setItem("".concat(localStorage.length + 1), JSON.stringify(score));
+    }
+  }, {
+    key: "setName",
+    value: function setName(e) {
+      var name;
+
+      if (e.type === 'keypress') {
+        name = nameInput.innerText;
+      }
+
+      if (e.code === 'Enter') {
+        this.startMenu();
+        this.addScore(name);
+      }
     }
   }]);
 
