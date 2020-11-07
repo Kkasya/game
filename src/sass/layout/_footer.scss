@@ -1,6 +1,9 @@
 .menuBtn {
   font-size: $font-size-h2;
   background-color: #104735;
+  box-shadow: inset rgba(0,0,0,.6) 0 -2px 5px, inset rgba(252,255,255,.7) 0 2px 5px, rgba(0,0,0,.8) 0 2px 5px -1px;
+  border: 0.1rem solid;
+  border-radius: 1rem;
   margin: 1rem 0;
   position: relative;
   color: #2ac992;
@@ -9,8 +12,6 @@
   cursor: pointer;
   width: 15rem;
   height: 5rem;
-  border: none;
-  border-radius: 1rem;
   outline: none;
 
   &:hover {

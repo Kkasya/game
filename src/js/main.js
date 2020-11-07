@@ -2,16 +2,12 @@ import create from "./base/create";
 import getTime from './game/timeStep';
 import * as arrays from './game/arrays';
 
-const audioField = create('audio', '');
-const audioItem = create('audio', '');
-const src = './src/sounds/';
 export const times = create('span', 'times', ' 00:00:00');
 const timeBlock = create('div', 'time',  [create('span', null, 'Time: '),times]);
 export const steps = create('span', 'steps', '0');
 const stepBlock = create('div', 'step',  [create('span', null, 'Steps: '), steps]);
 const header = create('div', 'header',
-    [audioField, audioItem,
-        create('h1', '', 'Gem Puzzle'),
+    [ create('h1', '', 'Gem Puzzle'),
     create('div', 'time-step',[timeBlock, stepBlock])]);
 const menuBtn = create('button', 'menuBtn', 'Menu');
 const footer = create('div', 'footer', menuBtn);
@@ -27,7 +23,7 @@ const game8Btn = create('div', 'start', '8х8');
 const gameSize = create('div', 'gameSize none', [game3Btn, game4Btn, game5Btn, game6Btn,game7Btn, game8Btn]);
 const solutionBtn = create('div', 'solution', 'Solution');
 const saveBtn = create('div', 'save', 'Save game');
-const audioIcon = create('div', 'audio');
+const audioIcon = create('div', 'none-audio');
 const audioBtn = create('div', '', 'Sound');
 const soundBtn = create('div', 'sound', [audioIcon, audioBtn]);
 const menu =  create('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, soundBtn]);
@@ -40,11 +36,14 @@ const messageWin = create('div', 'messageWin hide',[message1, message2, messageR
 let stopwatchNew = false;
 let stopwatchSave = false;
 
+const audioItem = new Audio('./src/sounds/move.wav');
+const audioField = new Audio('./src/sounds/field.mp3');
+
 export default class Puzzle {
     constructor(numberRows) {
         this.numberRows = numberRows;
         this.move = 0;
-        this.isSound = true;
+        this.isSound = false;
     }
 
     stopwatchF() {
@@ -78,17 +77,16 @@ export default class Puzzle {
         if (localStorage.getItem('array')) menu.classList.add('hide');
         document.body.prepend(create('div', 'wrapper_body', [header, this.main, footer]));
 
-        if (this.isSound) {
-            audioField.src = src + 'field.mp3';
-            audioField.currentTime = 0;
-            audioField.play();
-        }
+
 
         gameBtn.addEventListener('click', () => this.chooseGame());
         menuBtn.addEventListener('click', () => this.startMenu());
         continueBtn.addEventListener('click', () => this.continueGame());
         saveBtn.addEventListener('click', () => this.saveGame());
-        soundBtn.addEventListener('click', () => this.playSound());
+        soundBtn.addEventListener('click', () => {
+            if (!this.isSound) this.playSound();
+            else this.stopSound();
+        });
     }
 
     getItems(array) {
@@ -128,7 +126,6 @@ export default class Puzzle {
 
                 item.classList.add(classSlide);
                 if (this.isSound) {
-                    audioItem.src = src + 'move.wav';
                     audioItem.currentTime = 0;
                     audioItem.play();
                 }
@@ -211,14 +208,19 @@ export default class Puzzle {
     }
 
     startMenu() {
-        if( menu.classList.contains('hide')) {
-            if (!messageWin.classList.contains('hide')) {
-                messageWin.classList.add('hide');
-            } else {
-                clearInterval(this.stopwatch);
-                continueBtn.classList.remove('hide');
-            }
-            menu.classList.remove('hide');
+        if (!menu.classList.contains('hide') && !continueBtn.classList.contains('hide')) {
+           setTimeout(() => this.continueGame(), 150);
+        } else {
+           setTimeout( () => {
+                if (menu.classList.contains('hide')) {
+                    if (!messageWin.classList.contains('hide')) {
+                        messageWin.classList.add('hide');
+                    } else {
+                        clearInterval(this.stopwatch);
+                        continueBtn.classList.remove('hide');
+                    }
+                    menu.classList.remove('hide');
+                }}, 100);
         }
     }
 
@@ -243,17 +245,24 @@ export default class Puzzle {
     }
 
     playSound() {
-        if (this.isSound) {
-            this.isSound = false;
-            audioIcon.classList.add('none-audio');
-            audioField.pause();
-        } else {
+        setTimeout(() => {
             this.isSound = true;
             audioIcon.classList.remove('none-audio');
+            audioIcon.classList.add('audio');
             audioField.currentTime = 0;
-            audioField.play();
-        }
+                setInterval(()=> {
+                    if (this.isSound)  audioField.play()}, 1);
+
+        }, 100);
+    }
+    
+    stopSound() {
+        setTimeout(() => {
+        this.isSound = false;
+        audioIcon.classList.add('none-audio');
+        audioIcon.classList.remove('audio');
+        audioField.pause();
+        audioField.currentTime = 0;
+    }, 200);
     }
 };
-
-

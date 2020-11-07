@@ -260,14 +260,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 
-var audioField = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('audio', '');
-var audioItem = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('audio', '');
-var src = './src/sounds/';
 var times = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'times', ' 00:00:00');
 var timeBlock = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'time', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', null, 'Time: '), times]);
 var steps = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'steps', '0');
 var stepBlock = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'step', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', null, 'Steps: '), steps]);
-var header = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'header', [audioField, audioItem, (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('h1', '', 'Gem Puzzle'), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'time-step', [timeBlock, stepBlock])]);
+var header = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'header', [(0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('h1', '', 'Gem Puzzle'), (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'time-step', [timeBlock, stepBlock])]);
 var menuBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'menuBtn', 'Menu');
 var footer = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'footer', menuBtn);
 var continueBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'hide', 'Continue');
@@ -281,7 +278,7 @@ var game8Btn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'sta
 var gameSize = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'gameSize none', [game3Btn, game4Btn, game5Btn, game6Btn, game7Btn, game8Btn]);
 var solutionBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'solution', 'Solution');
 var saveBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'save', 'Save game');
-var audioIcon = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'audio');
+var audioIcon = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'none-audio');
 var audioBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', 'Sound');
 var soundBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'sound', [audioIcon, audioBtn]);
 var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, soundBtn]);
@@ -291,6 +288,8 @@ var messageResult = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div',
 var messageWin = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'messageWin hide', [message1, message2, messageResult]);
 var stopwatchNew = false;
 var stopwatchSave = false;
+var audioItem = new Audio('./src/sounds/move.wav');
+var audioField = new Audio('./src/sounds/field.mp3');
 
 var Puzzle = /*#__PURE__*/function () {
   function Puzzle(numberRows) {
@@ -298,7 +297,7 @@ var Puzzle = /*#__PURE__*/function () {
 
     this.numberRows = numberRows;
     this.move = 0;
-    this.isSound = true;
+    this.isSound = false;
   }
 
   _createClass(Puzzle, [{
@@ -337,13 +336,6 @@ var Puzzle = /*#__PURE__*/function () {
       if (this.numberRows === 8) this.main.classList.add('size8');
       if (localStorage.getItem('array')) menu.classList.add('hide');
       document.body.prepend((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'wrapper_body', [header, this.main, footer]));
-
-      if (this.isSound) {
-        audioField.src = src + 'field.mp3';
-        audioField.currentTime = 0;
-        audioField.play();
-      }
-
       gameBtn.addEventListener('click', function () {
         return _this.chooseGame();
       });
@@ -357,7 +349,7 @@ var Puzzle = /*#__PURE__*/function () {
         return _this.saveGame();
       });
       soundBtn.addEventListener('click', function () {
-        return _this.playSound();
+        if (!_this.isSound) _this.playSound();else _this.stopSound();
       });
     }
   }, {
@@ -409,7 +401,6 @@ var Puzzle = /*#__PURE__*/function () {
           item.classList.add(classSlide);
 
           if (this.isSound) {
-            audioItem.src = src + 'move.wav';
             audioItem.currentTime = 0;
             audioItem.play();
           }
@@ -507,15 +498,25 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "startMenu",
     value: function startMenu() {
-      if (menu.classList.contains('hide')) {
-        if (!messageWin.classList.contains('hide')) {
-          messageWin.classList.add('hide');
-        } else {
-          clearInterval(this.stopwatch);
-          continueBtn.classList.remove('hide');
-        }
+      var _this5 = this;
 
-        menu.classList.remove('hide');
+      if (!menu.classList.contains('hide') && !continueBtn.classList.contains('hide')) {
+        setTimeout(function () {
+          return _this5.continueGame();
+        }, 150);
+      } else {
+        setTimeout(function () {
+          if (menu.classList.contains('hide')) {
+            if (!messageWin.classList.contains('hide')) {
+              messageWin.classList.add('hide');
+            } else {
+              clearInterval(_this5.stopwatch);
+              continueBtn.classList.remove('hide');
+            }
+
+            menu.classList.remove('hide');
+          }
+        }, 100);
       }
     }
   }, {
@@ -542,16 +543,30 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "playSound",
     value: function playSound() {
-      if (this.isSound) {
-        this.isSound = false;
-        audioIcon.classList.add('none-audio');
-        audioField.pause();
-      } else {
-        this.isSound = true;
+      var _this6 = this;
+
+      setTimeout(function () {
+        _this6.isSound = true;
         audioIcon.classList.remove('none-audio');
+        audioIcon.classList.add('audio');
         audioField.currentTime = 0;
-        audioField.play();
-      }
+        setInterval(function () {
+          if (_this6.isSound) audioField.play();
+        }, 1);
+      }, 100);
+    }
+  }, {
+    key: "stopSound",
+    value: function stopSound() {
+      var _this7 = this;
+
+      setTimeout(function () {
+        _this7.isSound = false;
+        audioIcon.classList.add('none-audio');
+        audioIcon.classList.remove('audio');
+        audioField.pause();
+        audioField.currentTime = 0;
+      }, 200);
     }
   }]);
 
