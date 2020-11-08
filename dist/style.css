@@ -76,11 +76,6 @@ h1 {
   text-shadow: 0 1px rgba(255, 255, 255, 0.2), 0 -1px rgba(0, 0, 0, 0.8);
   user-select: none;
 }
-@media (max-width: 550px) {
-  .container .item {
-    flex-basis: calc(25% - 5.3rem);
-  }
-}
 .container .item:before {
   content: "";
   display: block;
@@ -95,18 +90,18 @@ h1 {
 }
 
 .size3 .item {
-  padding: 2.5rem;
-  flex-basis: calc(33% - 5.2rem);
+  width: 32.6%;
+  height: 32.6%;
 }
 
 .size4 .item {
-  padding: 2.5rem;
-  flex-basis: calc(25% - 5.2rem);
+  width: 24.2%;
+  height: 24.2%;
 }
 
 .size5 .item {
-  width: 19.5%;
-  height: 19.5%;
+  width: 19.2%;
+  height: 19.2%;
 }
 
 .size6 {
@@ -114,8 +109,8 @@ h1 {
   height: 43rem;
 }
 .size6 .item {
-  width: 16.2%;
-  height: 16.2%;
+  width: 16%;
+  height: 16%;
 }
 
 .size7 {
@@ -123,8 +118,8 @@ h1 {
   height: 43rem;
 }
 .size7 .item {
-  width: 13.8%;
-  height: 13.8%;
+  width: 13.6%;
+  height: 13.6%;
 }
 
 .size8 {
@@ -132,8 +127,8 @@ h1 {
   height: 43rem;
 }
 .size8 .item {
-  width: 12%;
-  height: 12%;
+  width: 11.8%;
+  height: 11.8%;
 }
 
 .slide-left {

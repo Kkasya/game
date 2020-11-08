@@ -66,6 +66,7 @@ export default class Puzzle {
         this.isSound = false;
         this.game = false;
         this.usePicture = false;
+        this.src = '';
     }
 
     stopwatchF() {
@@ -80,6 +81,10 @@ export default class Puzzle {
     init(array) {
         if (localStorage.getItem('array')) {
             array = JSON.parse((localStorage.getItem('array')));
+            if (localStorage.getItem('src')) {
+                this.src = localStorage.getItem('src');
+                this.usePicture = true;
+            }
             this.move = localStorage.getItem('move');
             this.numberRows = +localStorage.getItem('numberRows');
             times.innerHTML = `${localStorage.getItem('hour')}:${localStorage.getItem('min')}:${localStorage.getItem('sec')}`;
@@ -120,14 +125,14 @@ export default class Puzzle {
         const childMain = [];
         const sizeBackground = 100 / (this.numberRows - 1);
         const randIndex = Math.floor(Math.random()*Math.floor(numberPictures));
-        const src = `./src/images/box/${randIndex}.jpg`
+        if(!this.src) this.src = `./src/images/box/${randIndex}.jpg`;
 
         array.forEach((i, index) => {
             const item = create('div', 'item', `${i}`);
             item.style.order = index;
             if (this.usePicture) {
                 item.style.fontSize = 0;
-                item.style.backgroundImage = `url(${src})`;
+               item.style.backgroundImage = `url(${this.src})`;
                 item.style.backgroundSize = `${this.numberRows * 100}% auto`;
                 item.style.backgroundPositionY = `${Math.trunc((i - 1) / this.numberRows) * sizeBackground}%`;
                 while (i > this.numberRows) i -= this.numberRows;
@@ -224,12 +229,14 @@ export default class Puzzle {
     startGame() {
             times.innerHTML = '00:00:00';
             this.move = 0;
+            this.src = 0;
             localStorage.removeItem('array');
             localStorage.removeItem('move');
             localStorage.removeItem('hour');
             localStorage.removeItem('min');
             localStorage.removeItem('sec');
             localStorage.removeItem('numberRows');
+            localStorage.removeItem('src');
             gameBtn.classList.remove('none');
             gameSize.classList.add('none');
 
@@ -270,6 +277,7 @@ export default class Puzzle {
         localStorage.setItem('min', times.innerHTML.slice(3,5));
         localStorage.setItem('sec', times.innerHTML.slice(6));
         localStorage.setItem('numberRows', this.numberRows);
+        if (this.usePicture) localStorage.setItem('src', this.src);
         messageSave.classList.remove('hide');
         messageSave.classList.add('animation');
         setTimeout(() => {
@@ -279,6 +287,11 @@ export default class Puzzle {
     }
 
     showScores() {
+       if (table) {
+           this.main.childNodes.forEach(node => {
+               if (node.classList.contains('table')) this.main.removeChild(node);
+           })
+       }
         const scoreArray = getScores();
         const childTr = [];
         for (let i = 0; i < 10; i++) {
@@ -295,11 +308,10 @@ export default class Puzzle {
             }
                 childTr.push(tr);
         }
-        table = create('div', 'table none', childTr);
+        table = create('div', 'table', childTr);
         table.prepend(nameTable, trHeader);
         table.appendChild(backBtn);
         this.main.appendChild(table);
-        table.classList.remove('none');
         menu.classList.add('hide');
     }
 

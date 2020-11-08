@@ -344,6 +344,7 @@ var Puzzle = /*#__PURE__*/function () {
     this.isSound = false;
     this.game = false;
     this.usePicture = false;
+    this.src = '';
   }
 
   _createClass(Puzzle, [{
@@ -365,6 +366,12 @@ var Puzzle = /*#__PURE__*/function () {
 
       if (localStorage.getItem('array')) {
         array = JSON.parse(localStorage.getItem('array'));
+
+        if (localStorage.getItem('src')) {
+          this.src = localStorage.getItem('src');
+          this.usePicture = true;
+        }
+
         this.move = localStorage.getItem('move');
         this.numberRows = +localStorage.getItem('numberRows');
         times.innerHTML = "".concat(localStorage.getItem('hour'), ":").concat(localStorage.getItem('min'), ":").concat(localStorage.getItem('sec'));
@@ -421,14 +428,14 @@ var Puzzle = /*#__PURE__*/function () {
       var childMain = [];
       var sizeBackground = 100 / (this.numberRows - 1);
       var randIndex = Math.floor(Math.random() * Math.floor(numberPictures));
-      var src = "./src/images/box/".concat(randIndex, ".jpg");
+      if (!this.src) this.src = "./src/images/box/".concat(randIndex, ".jpg");
       array.forEach(function (i, index) {
         var item = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'item', "".concat(i));
         item.style.order = index;
 
         if (_this2.usePicture) {
           item.style.fontSize = 0;
-          item.style.backgroundImage = "url(".concat(src, ")");
+          item.style.backgroundImage = "url(".concat(_this2.src, ")");
           item.style.backgroundSize = "".concat(_this2.numberRows * 100, "% auto");
           item.style.backgroundPositionY = "".concat(Math.trunc((i - 1) / _this2.numberRows) * sizeBackground, "%");
 
@@ -553,12 +560,14 @@ var Puzzle = /*#__PURE__*/function () {
     value: function startGame() {
       times.innerHTML = '00:00:00';
       this.move = 0;
+      this.src = 0;
       localStorage.removeItem('array');
       localStorage.removeItem('move');
       localStorage.removeItem('hour');
       localStorage.removeItem('min');
       localStorage.removeItem('sec');
       localStorage.removeItem('numberRows');
+      localStorage.removeItem('src');
       gameBtn.classList.remove('none');
       gameSize.classList.add('none');
       this.initArray = _game_arrays__WEBPACK_IMPORTED_MODULE_2__.initialArray(this.numberRows);
@@ -609,6 +618,7 @@ var Puzzle = /*#__PURE__*/function () {
       localStorage.setItem('min', times.innerHTML.slice(3, 5));
       localStorage.setItem('sec', times.innerHTML.slice(6));
       localStorage.setItem('numberRows', this.numberRows);
+      if (this.usePicture) localStorage.setItem('src', this.src);
       messageSave.classList.remove('hide');
       messageSave.classList.add('animation');
       setTimeout(function () {
@@ -619,6 +629,14 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "showScores",
     value: function showScores() {
+      var _this6 = this;
+
+      if (table) {
+        this.main.childNodes.forEach(function (node) {
+          if (node.classList.contains('table')) _this6.main.removeChild(node);
+        });
+      }
+
       var scoreArray = (0,_game_scores__WEBPACK_IMPORTED_MODULE_3__.default)();
       var childTr = [];
 
@@ -638,35 +656,34 @@ var Puzzle = /*#__PURE__*/function () {
         childTr.push(tr);
       }
 
-      table = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'table none', childTr);
+      table = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'table', childTr);
       table.prepend(nameTable, trHeader);
       table.appendChild(backBtn);
       this.main.appendChild(table);
-      table.classList.remove('none');
       menu.classList.add('hide');
     }
   }, {
     key: "playSound",
     value: function playSound() {
-      var _this6 = this;
+      var _this7 = this;
 
       setTimeout(function () {
-        _this6.isSound = true;
+        _this7.isSound = true;
         audioIcon.classList.remove('none-audio');
         audioIcon.classList.add('audio');
         audioField.currentTime = 0;
         setInterval(function () {
-          if (_this6.isSound) audioField.play();
+          if (_this7.isSound) audioField.play();
         }, 1);
       }, 100);
     }
   }, {
     key: "stopSound",
     value: function stopSound() {
-      var _this7 = this;
+      var _this8 = this;
 
       setTimeout(function () {
-        _this7.isSound = false;
+        _this8.isSound = false;
         audioIcon.classList.add('none-audio');
         audioIcon.classList.remove('audio');
         audioField.pause();
