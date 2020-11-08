@@ -300,6 +300,8 @@ var header = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'heade
 var menuBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('button', 'menuBtn', 'Menu');
 var footer = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'footer', menuBtn);
 var continueBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'hide', 'Continue');
+var pictureBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', 'Use picture');
+var numberBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'none', 'Use numbers');
 var gameBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'start', 'New game');
 var game3Btn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'start', '3х3');
 var game4Btn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'start', '4х4');
@@ -314,7 +316,7 @@ var scoreBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', 
 var audioIcon = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'none-audio');
 var audioBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', 'Sound');
 var soundBtn = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'sound', [audioIcon, audioBtn]);
-var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
+var menu = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'menu', [continueBtn, pictureBtn, numberBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
 var message1 = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', "Yippee!");
 var message2 = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'message', "You solved the puzzle in ");
 var messageResult = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div');
@@ -331,6 +333,7 @@ var stopwatchNew = false;
 var stopwatchSave = false;
 var audioItem = new Audio('./src/sounds/move.wav');
 var audioField = new Audio('./src/sounds/field.mp3');
+var numberPictures = 150;
 
 var Puzzle = /*#__PURE__*/function () {
   function Puzzle(numberRows) {
@@ -340,6 +343,7 @@ var Puzzle = /*#__PURE__*/function () {
     this.move = 0;
     this.isSound = false;
     this.game = false;
+    this.usePicture = false;
   }
 
   _createClass(Puzzle, [{
@@ -400,7 +404,13 @@ var Puzzle = /*#__PURE__*/function () {
         if (!_this.isSound) _this.playSound();else _this.stopSound();
       });
       nameInput.addEventListener('keypress', function (e) {
-        _this.setName(e);
+        return _this.setName(e);
+      });
+      pictureBtn.addEventListener('click', function () {
+        return _this.addPicture();
+      });
+      numberBtn.addEventListener('click', function () {
+        return _this.removePicture();
       });
     }
   }, {
@@ -409,9 +419,26 @@ var Puzzle = /*#__PURE__*/function () {
       var _this2 = this;
 
       var childMain = [];
+      var sizeBackground = 100 / (this.numberRows - 1);
+      var randIndex = Math.floor(Math.random() * Math.floor(numberPictures));
+      var src = "./src/images/box/".concat(randIndex, ".jpg");
       array.forEach(function (i, index) {
         var item = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'item', "".concat(i));
         item.style.order = index;
+
+        if (_this2.usePicture) {
+          item.style.fontSize = 0;
+          item.style.backgroundImage = "url(".concat(src, ")");
+          item.style.backgroundSize = "".concat(_this2.numberRows * 100, "% auto");
+          item.style.backgroundPositionY = "".concat(Math.trunc((i - 1) / _this2.numberRows) * sizeBackground, "%");
+
+          while (i > _this2.numberRows) {
+            i -= _this2.numberRows;
+          }
+
+          item.style.backgroundPositionX = "".concat((i - 1) * sizeBackground, "%");
+        }
+
         childMain.push(item);
         item.addEventListener('click', function () {
           return _this2.replace(item);
@@ -682,6 +709,26 @@ var Puzzle = /*#__PURE__*/function () {
         this.startMenu();
         this.addScore(name);
       }
+    }
+  }, {
+    key: "addPicture",
+    value: function addPicture() {
+      pictureBtn.classList.add('none');
+      numberBtn.classList.remove('none');
+      this.usePicture = true;
+      document.body.innerHTML = '';
+      this.init(_game_arrays__WEBPACK_IMPORTED_MODULE_2__.initialArray(this.numberRows));
+      continueBtn.classList.add('hide');
+    }
+  }, {
+    key: "removePicture",
+    value: function removePicture() {
+      pictureBtn.classList.remove('none');
+      numberBtn.classList.add('none');
+      this.usePicture = false;
+      document.body.innerHTML = '';
+      this.init(_game_arrays__WEBPACK_IMPORTED_MODULE_2__.initialArray(this.numberRows));
+      continueBtn.classList.add('hide');
     }
   }]);
 

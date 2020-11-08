@@ -14,6 +14,8 @@ const menuBtn = create('button', 'menuBtn', 'Menu');
 const footer = create('div', 'footer', menuBtn);
 
 const continueBtn = create('div','hide', 'Continue');
+const pictureBtn = create('div', '', 'Use picture');
+const numberBtn = create('div', 'none', 'Use numbers');
 const gameBtn = create('div', 'start', 'New game');
 const game3Btn = create('div', 'start', '3х3');
 const game4Btn = create('div', 'start', '4х4');
@@ -28,7 +30,7 @@ const scoreBtn = create('div', '', 'Best scores');
 const audioIcon = create('div', 'none-audio');
 const audioBtn = create('div', '', 'Sound');
 const soundBtn = create('div', 'sound', [audioIcon, audioBtn]);
-const menu =  create('div', 'menu', [continueBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
+const menu =  create('div', 'menu', [continueBtn, pictureBtn, numberBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
 
 const message1 = create('div', '', `Yippee!`);
 const message2 = create('div', 'message', `You solved the puzzle in `);
@@ -55,6 +57,7 @@ let stopwatchSave = false;
 
 const audioItem = new Audio('./src/sounds/move.wav');
 const audioField = new Audio('./src/sounds/field.mp3');
+const numberPictures = 150;
 
 export default class Puzzle {
     constructor(numberRows) {
@@ -62,6 +65,7 @@ export default class Puzzle {
         this.move = 0;
         this.isSound = false;
         this.game = false;
+        this.usePicture = false;
     }
 
     stopwatchF() {
@@ -107,14 +111,28 @@ export default class Puzzle {
             if (!this.isSound) this.playSound();
             else this.stopSound();
         });
-        nameInput.addEventListener('keypress', e => { this.setName(e) });
+        nameInput.addEventListener('keypress', e => this.setName(e));
+        pictureBtn.addEventListener('click', () => this.addPicture());
+        numberBtn.addEventListener('click', () => this.removePicture());
     }
 
     getItems(array) {
         const childMain = [];
+        const sizeBackground = 100 / (this.numberRows - 1);
+        const randIndex = Math.floor(Math.random()*Math.floor(numberPictures));
+        const src = `./src/images/box/${randIndex}.jpg`
+
         array.forEach((i, index) => {
             const item = create('div', 'item', `${i}`);
             item.style.order = index;
+            if (this.usePicture) {
+                item.style.fontSize = 0;
+                item.style.backgroundImage = `url(${src})`;
+                item.style.backgroundSize = `${this.numberRows * 100}% auto`;
+                item.style.backgroundPositionY = `${Math.trunc((i - 1) / this.numberRows) * sizeBackground}%`;
+                while (i > this.numberRows) i -= this.numberRows;
+                item.style.backgroundPositionX = `${(i - 1) * sizeBackground}%`;
+            }
             childMain.push(item);
             item.addEventListener('click', () => this.replace(item));
         });
@@ -337,5 +355,21 @@ export default class Puzzle {
            this.startMenu();
            this.addScore(name);
         }
-}
+    }
+    addPicture() {
+        pictureBtn.classList.add('none');
+        numberBtn.classList.remove('none');
+        this.usePicture = true;
+        document.body.innerHTML = '';
+        this.init(arrays.initialArray(this.numberRows));
+        continueBtn.classList.add('hide');
+    }
+    removePicture() {
+        pictureBtn.classList.remove('none');
+        numberBtn.classList.add('none');
+        this.usePicture = false;
+        document.body.innerHTML = '';
+        this.init(arrays.initialArray(this.numberRows));
+        continueBtn.classList.add('hide');
+    }
  };

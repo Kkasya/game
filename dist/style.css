@@ -81,6 +81,14 @@ h1 {
     flex-basis: calc(25% - 5.3rem);
   }
 }
+.container .item:before {
+  content: "";
+  display: block;
+}
+
+.back {
+  background-position: 0 0;
+}
 
 .times, .steps {
   font-weight: bold;
