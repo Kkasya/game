@@ -362,33 +362,18 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "init",
     value: function init(array) {
-      var _this = this;
-
-      if (localStorage.getItem('array')) {
-        array = JSON.parse(localStorage.getItem('array'));
-
-        if (localStorage.getItem('src')) {
-          this.src = localStorage.getItem('src');
-          this.usePicture = true;
-        }
-
-        this.move = localStorage.getItem('move');
-        this.numberRows = +localStorage.getItem('numberRows');
-        times.innerHTML = "".concat(localStorage.getItem('hour'), ":").concat(localStorage.getItem('min'), ":").concat(localStorage.getItem('sec'));
-        steps.innerHTML = this.move;
-        stopwatchSave = true;
-        this.stopwatchF();
-      }
-
+      if (localStorage.getItem('array')) array = this.getSaveGame();
       this.main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', this.getItems(array));
-      if (this.numberRows === 3) this.main.classList.add('size3');
-      if (this.numberRows === 4) this.main.classList.add('size4');
-      if (this.numberRows === 5) this.main.classList.add('size5');
-      if (this.numberRows === 6) this.main.classList.add('size6');
-      if (this.numberRows === 7) this.main.classList.add('size7');
-      if (this.numberRows === 8) this.main.classList.add('size8');
+      this.main.classList.add("size".concat(this.numberRows));
       if (localStorage.getItem('array')) menu.classList.add('hide');
       document.body.prepend((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'wrapper_body', [header, this.main, footer]));
+      this.handler();
+    }
+  }, {
+    key: "handler",
+    value: function handler() {
+      var _this = this;
+
       gameBtn.addEventListener('click', function () {
         return _this.chooseGame();
       });
@@ -421,6 +406,24 @@ var Puzzle = /*#__PURE__*/function () {
       });
     }
   }, {
+    key: "getSaveGame",
+    value: function getSaveGame() {
+      var array = JSON.parse(localStorage.getItem('array'));
+
+      if (localStorage.getItem('src')) {
+        this.src = localStorage.getItem('src');
+        this.usePicture = true;
+      }
+
+      this.move = localStorage.getItem('move');
+      this.numberRows = +localStorage.getItem('numberRows');
+      times.innerHTML = "".concat(localStorage.getItem('hour'), ":").concat(localStorage.getItem('min'), ":").concat(localStorage.getItem('sec'));
+      steps.innerHTML = this.move;
+      stopwatchSave = true;
+      this.stopwatchF();
+      return array;
+    }
+  }, {
     key: "getItems",
     value: function getItems(array) {
       var _this2 = this;
@@ -447,14 +450,14 @@ var Puzzle = /*#__PURE__*/function () {
         }
 
         childMain.push(item);
-        item.addEventListener('click', function () {
-          return _this2.replace(item);
+        item.addEventListener('mousedown', function (e) {
+          return _this2.dragDrop(e, item, _this2.main);
         });
       });
       this.itemEmpty = childMain.find(function (child) {
         return child.innerHTML === " ";
       });
-      this.itemEmpty.classList.add('hide');
+      this.itemEmpty.classList.add('opacity');
       childMain.push(menu, messageWin, messageSave);
       return childMain;
     }
@@ -469,9 +472,58 @@ var Puzzle = /*#__PURE__*/function () {
       this.game = true;
     }
   }, {
-    key: "replace",
-    value: function replace(item) {
+    key: "dragDrop",
+    value: function dragDrop(e, item, main) {
       var _this3 = this;
+
+      var itemClone = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'item');
+      itemClone.classList.add('opacity');
+      itemClone.style.order = item.style.order;
+      var moveMouse = false;
+      var currentDropable = null;
+      var shiftX = e.clientX - item.getBoundingClientRect().left;
+      var shiftY = e.clientY - item.getBoundingClientRect().top;
+      moveAt(e.pageX, e.pageY);
+
+      function moveAt(pageX, pageY) {
+        item.style.left = pageX - shiftX - 560 + 'px';
+        item.style.top = pageY - shiftY - 165 + 'px';
+      }
+
+      function onMouseMove(e) {
+        main.appendChild(itemClone);
+        item.style.position = 'absolute';
+        item.style.zIndex = 1000;
+        moveAt(e.pageX, e.pageY);
+        moveMouse = true;
+        item.hidden = true;
+        var elem = document.elementFromPoint(e.clientX, e.clientY);
+        item.hidden = false;
+        if (!elem) return;
+        var dropElem = elem.closest('.opacity');
+        currentDropable = dropElem;
+      }
+
+      var listen = function listen() {
+        item.removeEventListener('mousemove', onMouseMove);
+        item.removeEventListener('mouseup', listen);
+        item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
+        if (main.contains(itemClone)) main.removeChild(itemClone);
+
+        if (moveMouse) {
+          if (currentDropable === _this3.itemEmpty) {
+            _this3.replace(item, false);
+          }
+        } else _this3.replace(item, true);
+      };
+
+      item.addEventListener('mousemove', onMouseMove);
+      item.addEventListener('mouseup', listen);
+    }
+  }, {
+    key: "replace",
+    value: function replace(item, doAnimation) {
+      var _this4 = this;
 
       var empty = this.itemEmpty.style.order;
       var itemOrder = item.style.order;
@@ -479,30 +531,37 @@ var Puzzle = /*#__PURE__*/function () {
       if (item.style.order !== empty) {
         if (Math.abs(empty - itemOrder) === this.numberRows || Math.abs(empty - itemOrder) === 1) {
           var classSlide;
-          if (itemOrder - empty === 1) classSlide = 'slide-right';
-          if (itemOrder - empty === -1) classSlide = 'slide-left';
-          if (itemOrder - empty === this.numberRows) classSlide = 'slide-top';
-          if (itemOrder - empty === -this.numberRows) classSlide = 'slide-bottom';
-          item.classList.add(classSlide);
 
           if (this.isSound) {
             audioItem.currentTime = 0;
             audioItem.play();
           }
 
-          setTimeout(function () {
-            _this3.itemEmpty.style.setProperty('order', itemOrder);
-
+          if (!doAnimation) {
+            if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
+            this.itemEmpty.style.setProperty('order', itemOrder);
             item.style.setProperty('order', empty);
-            item.classList.remove(classSlide);
-          }, 510);
+          } else {
+            if (itemOrder - empty === 1) classSlide = 'slide-right';
+            if (itemOrder - empty === -1) classSlide = 'slide-left';
+            if (itemOrder - empty === this.numberRows) classSlide = 'slide-top';
+            if (itemOrder - empty === -this.numberRows) classSlide = 'slide-bottom';
+            item.classList.add(classSlide);
+            setTimeout(function () {
+              _this4.itemEmpty.style.setProperty('order', itemOrder);
+
+              item.style.setProperty('order', empty);
+              if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
+            }, 510);
+          }
+
           this.move++;
           steps.innerHTML = this.move;
         }
       }
 
       setTimeout(function () {
-        _this3.checkArray(item);
+        _this4.checkArray(item);
       }, 510);
     }
   }, {
@@ -520,39 +579,39 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "chooseGame",
     value: function chooseGame() {
-      var _this4 = this;
+      var _this5 = this;
 
       gameBtn.classList.add('none');
       gameSize.classList.remove('none');
       game3Btn.addEventListener('click', function () {
-        _this4.numberRows = 3;
+        _this5.numberRows = 3;
 
-        _this4.startGame();
+        _this5.startGame();
       });
       game4Btn.addEventListener('click', function () {
-        _this4.numberRows = 4;
+        _this5.numberRows = 4;
 
-        _this4.startGame();
+        _this5.startGame();
       });
       game5Btn.addEventListener('click', function () {
-        _this4.numberRows = 5;
+        _this5.numberRows = 5;
 
-        _this4.startGame();
+        _this5.startGame();
       });
       game6Btn.addEventListener('click', function () {
-        _this4.numberRows = 6;
+        _this5.numberRows = 6;
 
-        _this4.startGame();
+        _this5.startGame();
       });
       game7Btn.addEventListener('click', function () {
-        _this4.numberRows = 7;
+        _this5.numberRows = 7;
 
-        _this4.startGame();
+        _this5.startGame();
       });
       game8Btn.addEventListener('click', function () {
-        _this4.numberRows = 8;
+        _this5.numberRows = 8;
 
-        _this4.startGame();
+        _this5.startGame();
       });
     }
   }, {
@@ -577,13 +636,13 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "startMenu",
     value: function startMenu() {
-      var _this5 = this;
+      var _this6 = this;
 
       clearInterval(this.stopwatch);
 
       if (!menu.classList.contains('hide') && !continueBtn.classList.contains('hide')) {
         setTimeout(function () {
-          return _this5.continueGame();
+          return _this6.continueGame();
         }, 150);
       } else {
         setTimeout(function () {
@@ -592,7 +651,7 @@ var Puzzle = /*#__PURE__*/function () {
 
             if (!messageWin.classList.contains('hide')) {
               messageWin.classList.add('hide');
-            } else if (localStorage.getItem('array') || _this5.game) continueBtn.classList.remove('hide');
+            } else if (localStorage.getItem('array') || _this6.game) continueBtn.classList.remove('hide');
 
             menu.classList.remove('hide');
           }
@@ -629,11 +688,11 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "showScores",
     value: function showScores() {
-      var _this6 = this;
+      var _this7 = this;
 
       if (table) {
         this.main.childNodes.forEach(function (node) {
-          if (node.classList.contains('table')) _this6.main.removeChild(node);
+          if (node.classList.contains('table')) _this7.main.removeChild(node);
         });
       }
 
@@ -665,25 +724,25 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "playSound",
     value: function playSound() {
-      var _this7 = this;
+      var _this8 = this;
 
       setTimeout(function () {
-        _this7.isSound = true;
+        _this8.isSound = true;
         audioIcon.classList.remove('none-audio');
         audioIcon.classList.add('audio');
         audioField.currentTime = 0;
         setInterval(function () {
-          if (_this7.isSound) audioField.play();
+          if (_this8.isSound) audioField.play();
         }, 1);
       }, 100);
     }
   }, {
     key: "stopSound",
     value: function stopSound() {
-      var _this8 = this;
+      var _this9 = this;
 
       setTimeout(function () {
-        _this8.isSound = false;
+        _this9.isSound = false;
         audioIcon.classList.add('none-audio');
         audioIcon.classList.remove('audio');
         audioField.pause();

@@ -79,33 +79,16 @@ export default class Puzzle {
     }
 
     init(array) {
-        if (localStorage.getItem('array')) {
-            array = JSON.parse((localStorage.getItem('array')));
-            if (localStorage.getItem('src')) {
-                this.src = localStorage.getItem('src');
-                this.usePicture = true;
-            }
-            this.move = localStorage.getItem('move');
-            this.numberRows = +localStorage.getItem('numberRows');
-            times.innerHTML = `${localStorage.getItem('hour')}:${localStorage.getItem('min')}:${localStorage.getItem('sec')}`;
-            steps.innerHTML = this.move;
-            stopwatchSave = true;
-            this.stopwatchF();
-        }
+        if (localStorage.getItem('array')) array = this.getSaveGame();
         this.main = create('main', 'container', this.getItems(array));
-
-        if (this.numberRows === 3) this.main.classList.add('size3');
-        if (this.numberRows === 4) this.main.classList.add('size4');
-        if (this.numberRows === 5) this.main.classList.add('size5');
-        if (this.numberRows === 6) this.main.classList.add('size6');
-        if (this.numberRows === 7) this.main.classList.add('size7');
-        if (this.numberRows === 8) this.main.classList.add('size8');
-
+        this.main.classList.add(`size${this.numberRows}`);
         if (localStorage.getItem('array')) menu.classList.add('hide');
         document.body.prepend(create('div', 'wrapper_body', [header, this.main, footer]));
 
+        this.handler();
+    }
 
-
+    handler() {
         gameBtn.addEventListener('click', () => this.chooseGame());
         menuBtn.addEventListener('click', () => this.startMenu());
         continueBtn.addEventListener('click', () => this.continueGame());
@@ -119,6 +102,22 @@ export default class Puzzle {
         nameInput.addEventListener('keypress', e => this.setName(e));
         pictureBtn.addEventListener('click', () => this.addPicture());
         numberBtn.addEventListener('click', () => this.removePicture());
+    }
+
+    getSaveGame() {
+        const array = JSON.parse((localStorage.getItem('array')));
+        if (localStorage.getItem('src')) {
+            this.src = localStorage.getItem('src');
+            this.usePicture = true;
+        }
+        this.move = localStorage.getItem('move');
+        this.numberRows = +localStorage.getItem('numberRows');
+        times.innerHTML = `${localStorage.getItem('hour')}:${localStorage.getItem('min')}:${localStorage.getItem('sec')}`;
+        steps.innerHTML = this.move;
+        stopwatchSave = true;
+        this.stopwatchF();
+
+        return array;
     }
 
     getItems(array) {
@@ -139,13 +138,12 @@ export default class Puzzle {
                 item.style.backgroundPositionX = `${(i - 1) * sizeBackground}%`;
             }
             childMain.push(item);
-            item.addEventListener('click', () => this.replace(item));
-        });
+            item.addEventListener('mousedown', (e) => this.dragDrop(e, item, this.main));});
 
-        this.itemEmpty = childMain.find(child => child.innerHTML=== " ");
-        this.itemEmpty.classList.add('hide');
-        childMain.push(menu, messageWin, messageSave);
-        return childMain;
+            this.itemEmpty = childMain.find(child => child.innerHTML=== " ");
+            this.itemEmpty.classList.add('opacity');
+            childMain.push(menu, messageWin, messageSave);
+            return childMain;
     }
 
     showGame() {
@@ -157,28 +155,84 @@ export default class Puzzle {
             this.game = true;
     }
 
-    replace(item) {
+    dragDrop(e, item, main) {
+            let itemClone = create('div', 'item');
+            itemClone.classList.add('opacity');
+            itemClone.style.order = item.style.order;
+
+            let moveMouse = false;
+            let currentDropable = null;
+            let shiftX = e.clientX - item.getBoundingClientRect().left;
+            let shiftY = e.clientY - item.getBoundingClientRect().top;
+
+            moveAt(e.pageX, e.pageY);
+
+            function moveAt(pageX, pageY) {
+                item.style.left = pageX - shiftX - 560 + 'px';
+                item.style.top = pageY -  shiftY - 165 + 'px';
+            }
+
+            function onMouseMove(e) {
+                main.appendChild(itemClone);
+                item.style.position = 'absolute';
+                item.style.zIndex = 1000;
+
+                moveAt(e.pageX, e.pageY);
+
+                moveMouse = true;
+                item.hidden = true;
+                let elem = document.elementFromPoint(e.clientX, e.clientY);
+                item.hidden = false;
+
+                if(!elem) return;
+
+                let dropElem = elem.closest('.opacity');
+                currentDropable = dropElem;
+            }
+
+             const listen = () => {
+                 item.removeEventListener('mousemove', onMouseMove);
+                 item.removeEventListener('mouseup',listen);
+                 item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
+                 if (main.contains(itemClone)) main.removeChild(itemClone);
+
+                 if (moveMouse) {
+                    if (currentDropable === this.itemEmpty) {
+                         this.replace(item, false);
+                     }
+                 } else this.replace(item, true);
+        };
+            item.addEventListener('mousemove', onMouseMove);
+            item.addEventListener('mouseup', listen);
+    }
+
+    replace(item, doAnimation) {
         const empty = this.itemEmpty.style.order;
         const itemOrder = item.style.order;
         if (item.style.order !== empty) {
             if (Math.abs(empty - itemOrder) === this.numberRows || Math.abs(empty - itemOrder) === 1) {
                 let classSlide;
-                if((itemOrder - empty) === 1) classSlide = 'slide-right';
-                if((itemOrder - empty) === -1) classSlide = 'slide-left';
-                if((itemOrder - empty) === this.numberRows)  classSlide = 'slide-top';
-                if((itemOrder - empty) === -this.numberRows) classSlide = 'slide-bottom';
 
-                item.classList.add(classSlide);
                 if (this.isSound) {
                     audioItem.currentTime = 0;
                     audioItem.play();
                 }
-                setTimeout(() => {
-                    this.itemEmpty.style.setProperty('order', itemOrder);
-                    item.style.setProperty('order', empty);
-                    item.classList.remove(classSlide);
-                }, 510);
-
+                if (!doAnimation) {
+                        if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
+                        this.itemEmpty.style.setProperty('order', itemOrder);
+                        item.style.setProperty('order', empty);
+                } else {
+                    if ((itemOrder - empty) === 1) classSlide = 'slide-right';
+                    if ((itemOrder - empty) === -1) classSlide = 'slide-left';
+                    if ((itemOrder - empty) === this.numberRows) classSlide = 'slide-top';
+                    if ((itemOrder - empty) === -this.numberRows) classSlide = 'slide-bottom';
+                    item.classList.add(classSlide);
+                    setTimeout(() => {
+                        this.itemEmpty.style.setProperty('order', itemOrder);
+                        item.style.setProperty('order', empty);
+                        if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
+                    }, 510);
+                }
                 this.move++;
                 steps.innerHTML = this.move;
             }

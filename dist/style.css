@@ -266,6 +266,10 @@ h1 {
   visibility: hidden;
 }
 
+.opacity {
+  opacity: 0;
+}
+
 .none {
   display: none;
 }
