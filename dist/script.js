@@ -143,7 +143,7 @@ function randomArray(numberRows) {
   var emptyIndex = initArray.length - 1;
   var randArray = initArray;
 
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < 50; i++) {
     var randIndex = Math.floor(Math.random() * Math.floor(initArray.length));
 
     if (randIndex != emptyIndex) {
@@ -321,7 +321,7 @@ var message1 = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', '', 
 var message2 = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'message', "You solved the puzzle in ");
 var messageResult = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div');
 var question = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('p', '', 'What is your name?');
-var nameInput = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('span', 'name', null, null, ['contenteditable', true]);
+var nameInput = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'name', '', null, ['contenteditable', true]);
 var askName = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'ask-name', [question, nameInput]);
 var messageWin = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'messageWin hide', [message1, message2, messageResult, askName]);
 var messageSave = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'message-save hide', 'Your game is saved');
@@ -345,6 +345,7 @@ var Puzzle = /*#__PURE__*/function () {
     this.game = false;
     this.usePicture = false;
     this.src = '';
+    this.addName = false;
   }
 
   _createClass(Puzzle, [{
@@ -362,8 +363,14 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "init",
     value: function init(array) {
+      this.initArray = _game_arrays__WEBPACK_IMPORTED_MODULE_2__.initialArray(this.numberRows);
       if (localStorage.getItem('array')) array = this.getSaveGame();
-      this.main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', this.getItems(array));
+      this.main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', this.getItems(array)); // if (this.src && this.usePicture) {
+      //     this.main.style.background = `url(${this.src})`;
+      //     this.main.style.backgroundSize = `cover`;
+      //     this.main.style.opacity = '0.5';
+      // }
+
       this.main.classList.add("size".concat(this.numberRows));
       if (localStorage.getItem('array')) menu.classList.add('hide');
       document.body.prepend((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'wrapper_body', [header, this.main, footer]));
@@ -574,7 +581,10 @@ var Puzzle = /*#__PURE__*/function () {
 
       if (gameSaved.toString() == this.initArray.toString()) {
         this.showMessage();
+        this.game = false;
       }
+
+      ;
     }
   }, {
     key: "chooseGame",
@@ -629,7 +639,6 @@ var Puzzle = /*#__PURE__*/function () {
       localStorage.removeItem('src');
       gameBtn.classList.remove('none');
       gameSize.classList.add('none');
-      this.initArray = _game_arrays__WEBPACK_IMPORTED_MODULE_2__.initialArray(this.numberRows);
       stopwatchNew = true;
       this.showGame();
     }
@@ -752,6 +761,8 @@ var Puzzle = /*#__PURE__*/function () {
   }, {
     key: "showMessage",
     value: function showMessage() {
+      messageResult.innerHTML = '';
+      nameInput.innerHTML = '';
       clearInterval(this.stopwatch);
       var hour = +times.innerHTML.slice(0, 2);
       var min = times.innerHTML.slice(3, 5);
@@ -770,18 +781,19 @@ var Puzzle = /*#__PURE__*/function () {
         size: "".concat(this.numberRows, "x").concat(this.numberRows),
         moves: this.move
       };
-      localStorage.setItem("".concat(localStorage.length + 1), JSON.stringify(score));
+
+      if (!(localStorage.getItem("".concat(localStorage.length - 1)) == JSON.stringify(score))) {
+        localStorage.setItem("".concat(localStorage.length), JSON.stringify(score));
+      }
     }
   }, {
     key: "setName",
     value: function setName(e) {
-      var name;
-
-      if (e.type === 'keypress') {
-        name = nameInput.innerText;
-      }
-
-      if (e.code === 'Enter') {
+      if (e.code === 'Enter' || e.keyCode === 13) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.addName = true;
+        var name = nameInput.innerHTML;
         this.startMenu();
         this.addScore(name);
       }

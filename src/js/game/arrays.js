@@ -8,12 +8,12 @@ export function initialArray(numberRows) {
 }
 
 export function randomArray(numberRows) {
-    const  initArray = initialArray(numberRows);
+    const initArray = initialArray(numberRows);
     let emptyIndex = initArray.length - 1;
     const randArray = initArray;
 
-    for (let i = 0; i < 5; i++) {
-        const randIndex = Math.floor(Math.random()*Math.floor(initArray.length));
+    for (let i = 0; i < 50; i++) {
+        const randIndex = Math.floor(Math.random() * Math.floor(initArray.length));
         if (randIndex != emptyIndex) {
             if (Math.abs(emptyIndex - randIndex) == 4 || Math.abs(emptyIndex - randIndex) == 1) {
                 randArray[emptyIndex] = randArray[randIndex];
@@ -23,4 +23,5 @@ export function randomArray(numberRows) {
         }
     }
     return randArray;
+
 }

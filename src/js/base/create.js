@@ -6,7 +6,7 @@ export default function create(elem, classes, childs, parent, ...dataAttr) {
         throw new Error('Unable to create HTMLElement');
     }
 
-    if(classes) {
+    if (classes) {
         element.classList.add(...classes.split(' '));
     }
     if (childs && Array.isArray(childs)) {
@@ -15,15 +15,15 @@ export default function create(elem, classes, childs, parent, ...dataAttr) {
         });
     } else if (childs && typeof childs === 'object') {
         element.appendChild(childs);
-    }else if (childs && typeof childs === 'string') {
+    } else if (childs && typeof childs === 'string') {
         element.innerHTML = childs;
     }
 
-    if(parent) {
+    if (parent) {
         parent.appendChild(element);
     }
 
-    if(dataAttr.length) {
+    if (dataAttr.length) {
         dataAttr.forEach(([attrName, attrValue]) => element.setAttribute(attrName, attrValue));
     }
     return element;

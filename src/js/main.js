@@ -4,16 +4,16 @@ import * as arrays from './game/arrays';
 import getScores from './game/scores';
 
 const times = create('span', 'times', ' 00:00:00');
-const timeBlock = create('div', 'time',  [create('span', null, 'Time: '),times]);
+const timeBlock = create('div', 'time', [create('span', null, 'Time: '), times]);
 const steps = create('span', 'steps', '0');
-const stepBlock = create('div', 'step',  [create('span', null, 'Steps: '), steps]);
+const stepBlock = create('div', 'step', [create('span', null, 'Steps: '), steps]);
 const header = create('div', 'header',
-    [ create('h1', '', 'Gem Puzzle'),
-    create('div', 'time-step',[timeBlock, stepBlock])]);
+    [create('h1', '', 'Gem Puzzle'),
+        create('div', 'time-step', [timeBlock, stepBlock])]);
 const menuBtn = create('button', 'menuBtn', 'Menu');
 const footer = create('div', 'footer', menuBtn);
 
-const continueBtn = create('div','hide', 'Continue');
+const continueBtn = create('div', 'hide', 'Continue');
 const pictureBtn = create('div', '', 'Use picture');
 const numberBtn = create('div', 'none', 'Use numbers');
 const gameBtn = create('div', 'start', 'New game');
@@ -23,22 +23,22 @@ const game5Btn = create('div', 'start', '5х5');
 const game6Btn = create('div', 'start', '6х6');
 const game7Btn = create('div', 'start', '7х7');
 const game8Btn = create('div', 'start', '8х8');
-const gameSize = create('div', 'gameSize none', [game3Btn, game4Btn, game5Btn, game6Btn,game7Btn, game8Btn]);
+const gameSize = create('div', 'gameSize none', [game3Btn, game4Btn, game5Btn, game6Btn, game7Btn, game8Btn]);
 const solutionBtn = create('div', 'solution', 'Solution');
 const saveBtn = create('div', 'save', 'Save game');
 const scoreBtn = create('div', '', 'Best scores');
 const audioIcon = create('div', 'none-audio');
 const audioBtn = create('div', '', 'Sound');
 const soundBtn = create('div', 'sound', [audioIcon, audioBtn]);
-const menu =  create('div', 'menu', [continueBtn, pictureBtn, numberBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
+const menu = create('div', 'menu', [continueBtn, pictureBtn, numberBtn, gameBtn, gameSize, saveBtn, solutionBtn, scoreBtn, soundBtn]);
 
 const message1 = create('div', '', `Yippee!`);
 const message2 = create('div', 'message', `You solved the puzzle in `);
 const messageResult = create('div');
 const question = create('p', '', 'What is your name?');
-const nameInput = create('span', 'name', null, null, ['contenteditable', true]);
+let nameInput = create('div', 'name', '', null, ['contenteditable', true]);
 const askName = create('div', 'ask-name', [question, nameInput]);
-const messageWin = create('div', 'messageWin hide',[message1, message2, messageResult, askName]);
+const messageWin = create('div', 'messageWin hide', [message1, message2, messageResult, askName]);
 
 const messageSave = create('div', 'message-save hide', 'Your game is saved');
 
@@ -67,11 +67,14 @@ export default class Puzzle {
         this.game = false;
         this.usePicture = false;
         this.src = '';
+        this.addName = false;
     }
 
     stopwatchF() {
         clearInterval(this.stopwatch);
-        this.stopwatch = setInterval(function () {times.innerHTML = getTime(stopwatchNew, stopwatchSave)}, 1000);
+        this.stopwatch = setInterval(function () {
+            times.innerHTML = getTime(stopwatchNew, stopwatchSave)
+        }, 1000);
         setTimeout((() => {
             stopwatchNew = false;
             stopwatchSave = false;
@@ -79,8 +82,15 @@ export default class Puzzle {
     }
 
     init(array) {
+        this.initArray = arrays.initialArray(this.numberRows);
         if (localStorage.getItem('array')) array = this.getSaveGame();
         this.main = create('main', 'container', this.getItems(array));
+        // if (this.src && this.usePicture) {
+        //     this.main.style.background = `url(${this.src})`;
+        //     this.main.style.backgroundSize = `cover`;
+        //     this.main.style.opacity = '0.5';
+        // }
+
         this.main.classList.add(`size${this.numberRows}`);
         if (localStorage.getItem('array')) menu.classList.add('hide');
         document.body.prepend(create('div', 'wrapper_body', [header, this.main, footer]));
@@ -99,7 +109,7 @@ export default class Puzzle {
             if (!this.isSound) this.playSound();
             else this.stopSound();
         });
-        nameInput.addEventListener('keypress', e => this.setName(e));
+        nameInput.addEventListener('keypress', (e) => this.setName(e));
         pictureBtn.addEventListener('click', () => this.addPicture());
         numberBtn.addEventListener('click', () => this.removePicture());
     }
@@ -123,87 +133,89 @@ export default class Puzzle {
     getItems(array) {
         const childMain = [];
         const sizeBackground = 100 / (this.numberRows - 1);
-        const randIndex = Math.floor(Math.random()*Math.floor(numberPictures));
-        if(!this.src) this.src = `./src/images/box/${randIndex}.jpg`;
+        const randIndex = Math.floor(Math.random() * Math.floor(numberPictures));
+        if (!this.src) this.src = `./src/images/box/${randIndex}.jpg`;
 
         array.forEach((i, index) => {
             const item = create('div', 'item', `${i}`);
             item.style.order = index;
             if (this.usePicture) {
+
                 item.style.fontSize = 0;
-               item.style.backgroundImage = `url(${this.src})`;
+                item.style.backgroundImage = `url(${this.src})`;
                 item.style.backgroundSize = `${this.numberRows * 100}% auto`;
                 item.style.backgroundPositionY = `${Math.trunc((i - 1) / this.numberRows) * sizeBackground}%`;
                 while (i > this.numberRows) i -= this.numberRows;
                 item.style.backgroundPositionX = `${(i - 1) * sizeBackground}%`;
             }
             childMain.push(item);
-            item.addEventListener('mousedown', (e) => this.dragDrop(e, item, this.main));});
+            item.addEventListener('mousedown', (e) => this.dragDrop(e, item, this.main));
+        });
 
-            this.itemEmpty = childMain.find(child => child.innerHTML=== " ");
-            this.itemEmpty.classList.add('opacity');
-            childMain.push(menu, messageWin, messageSave);
-            return childMain;
+        this.itemEmpty = childMain.find(child => child.innerHTML === " ");
+        this.itemEmpty.classList.add('opacity');
+        childMain.push(menu, messageWin, messageSave);
+        return childMain;
     }
 
     showGame() {
-            menu.classList.add('hide');
-            document.body.innerHTML = '';
-            this.init(arrays.randomArray(this.numberRows));
-            steps.innerHTML = this.move;
-            this.stopwatchF();
-            this.game = true;
+        menu.classList.add('hide');
+        document.body.innerHTML = '';
+        this.init(arrays.randomArray(this.numberRows));
+        steps.innerHTML = this.move;
+        this.stopwatchF();
+        this.game = true;
     }
 
     dragDrop(e, item, main) {
-            let itemClone = create('div', 'item');
-            itemClone.classList.add('opacity');
-            itemClone.style.order = item.style.order;
+        let itemClone = create('div', 'item');
+        itemClone.classList.add('opacity');
+        itemClone.style.order = item.style.order;
 
-            let moveMouse = false;
-            let currentDropable = null;
-            let shiftX = e.clientX - item.getBoundingClientRect().left;
-            let shiftY = e.clientY - item.getBoundingClientRect().top;
+        let moveMouse = false;
+        let currentDropable = null;
+        let shiftX = e.clientX - item.getBoundingClientRect().left;
+        let shiftY = e.clientY - item.getBoundingClientRect().top;
+
+        moveAt(e.pageX, e.pageY);
+
+        function moveAt(pageX, pageY) {
+            item.style.left = pageX - shiftX - 560 + 'px';
+            item.style.top = pageY - shiftY - 165 + 'px';
+        }
+
+        function onMouseMove(e) {
+            main.appendChild(itemClone);
+            item.style.position = 'absolute';
+            item.style.zIndex = 1000;
 
             moveAt(e.pageX, e.pageY);
 
-            function moveAt(pageX, pageY) {
-                item.style.left = pageX - shiftX - 560 + 'px';
-                item.style.top = pageY -  shiftY - 165 + 'px';
-            }
+            moveMouse = true;
+            item.hidden = true;
+            let elem = document.elementFromPoint(e.clientX, e.clientY);
+            item.hidden = false;
 
-            function onMouseMove(e) {
-                main.appendChild(itemClone);
-                item.style.position = 'absolute';
-                item.style.zIndex = 1000;
+            if (!elem) return;
 
-                moveAt(e.pageX, e.pageY);
+            let dropElem = elem.closest('.opacity');
+            currentDropable = dropElem;
+        }
 
-                moveMouse = true;
-                item.hidden = true;
-                let elem = document.elementFromPoint(e.clientX, e.clientY);
-                item.hidden = false;
+        const listen = () => {
+            item.removeEventListener('mousemove', onMouseMove);
+            item.removeEventListener('mouseup', listen);
+            item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
+            if (main.contains(itemClone)) main.removeChild(itemClone);
 
-                if(!elem) return;
-
-                let dropElem = elem.closest('.opacity');
-                currentDropable = dropElem;
-            }
-
-             const listen = () => {
-                 item.removeEventListener('mousemove', onMouseMove);
-                 item.removeEventListener('mouseup',listen);
-                 item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
-                 if (main.contains(itemClone)) main.removeChild(itemClone);
-
-                 if (moveMouse) {
-                    if (currentDropable === this.itemEmpty) {
-                         this.replace(item, false);
-                     }
-                 } else this.replace(item, true);
+            if (moveMouse) {
+                if (currentDropable === this.itemEmpty) {
+                    this.replace(item, false);
+                }
+            } else this.replace(item, true);
         };
-            item.addEventListener('mousemove', onMouseMove);
-            item.addEventListener('mouseup', listen);
+        item.addEventListener('mousemove', onMouseMove);
+        item.addEventListener('mouseup', listen);
     }
 
     replace(item, doAnimation) {
@@ -218,9 +230,9 @@ export default class Puzzle {
                     audioItem.play();
                 }
                 if (!doAnimation) {
-                        if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
-                        this.itemEmpty.style.setProperty('order', itemOrder);
-                        item.style.setProperty('order', empty);
+                    if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
+                    this.itemEmpty.style.setProperty('order', itemOrder);
+                    item.style.setProperty('order', empty);
                 } else {
                     if ((itemOrder - empty) === 1) classSlide = 'slide-right';
                     if ((itemOrder - empty) === -1) classSlide = 'slide-left';
@@ -237,7 +249,9 @@ export default class Puzzle {
                 steps.innerHTML = this.move;
             }
         }
-       setTimeout( () => { this.checkArray(item); }, 510);
+        setTimeout(() => {
+            this.checkArray(item);
+        }, 510);
     }
 
     checkArray(item) {
@@ -248,7 +262,8 @@ export default class Puzzle {
 
         if (gameSaved.toString() == this.initArray.toString()) {
             this.showMessage();
-        }
+            this.game = false;
+        };
     }
 
     chooseGame() {
@@ -281,37 +296,37 @@ export default class Puzzle {
     }
 
     startGame() {
-            times.innerHTML = '00:00:00';
-            this.move = 0;
-            this.src = 0;
-            localStorage.removeItem('array');
-            localStorage.removeItem('move');
-            localStorage.removeItem('hour');
-            localStorage.removeItem('min');
-            localStorage.removeItem('sec');
-            localStorage.removeItem('numberRows');
-            localStorage.removeItem('src');
-            gameBtn.classList.remove('none');
-            gameSize.classList.add('none');
+        times.innerHTML = '00:00:00';
+        this.move = 0;
+        this.src = 0;
+        localStorage.removeItem('array');
+        localStorage.removeItem('move');
+        localStorage.removeItem('hour');
+        localStorage.removeItem('min');
+        localStorage.removeItem('sec');
+        localStorage.removeItem('numberRows');
+        localStorage.removeItem('src');
+        gameBtn.classList.remove('none');
+        gameSize.classList.add('none');
 
-            this.initArray = arrays.initialArray(this.numberRows);
-            stopwatchNew = true;
-            this.showGame();
+        stopwatchNew = true;
+        this.showGame();
     }
 
     startMenu() {
         clearInterval(this.stopwatch);
         if (!menu.classList.contains('hide') && !continueBtn.classList.contains('hide')) {
-           setTimeout(() => this.continueGame(), 150);
+            setTimeout(() => this.continueGame(), 150);
         } else {
-           setTimeout( () => {
+            setTimeout(() => {
                 if (menu.classList.contains('hide')) {
-                        if (table && !table.classList.contains('none')) table.classList.add('none');
+                    if (table && !table.classList.contains('none')) table.classList.add('none');
                     if (!messageWin.classList.contains('hide')) {
                         messageWin.classList.add('hide');
                     } else if (localStorage.getItem('array') || this.game) continueBtn.classList.remove('hide');
                     menu.classList.remove('hide');
-                }}, 100);
+                }
+            }, 100);
         }
     }
 
@@ -327,8 +342,8 @@ export default class Puzzle {
         });
         localStorage.setItem('array', JSON.stringify(gameSaved));
         localStorage.setItem('move', this.move);
-        localStorage.setItem('hour', times.innerHTML.slice(0,2));
-        localStorage.setItem('min', times.innerHTML.slice(3,5));
+        localStorage.setItem('hour', times.innerHTML.slice(0, 2));
+        localStorage.setItem('min', times.innerHTML.slice(3, 5));
         localStorage.setItem('sec', times.innerHTML.slice(6));
         localStorage.setItem('numberRows', this.numberRows);
         if (this.usePicture) localStorage.setItem('src', this.src);
@@ -341,26 +356,27 @@ export default class Puzzle {
     }
 
     showScores() {
-       if (table) {
-           this.main.childNodes.forEach(node => {
-               if (node.classList.contains('table')) this.main.removeChild(node);
-           })
-       }
+        if (table) {
+            this.main.childNodes.forEach(node => {
+                if (node.classList.contains('table')) this.main.removeChild(node);
+            })
+        }
         const scoreArray = getScores();
         const childTr = [];
         for (let i = 0; i < 10; i++) {
             const tr = (create('tr', 'tr-table', create('td', 'number-table', `${i + 1} `)));
 
-                if (scoreArray[i]) {
-                   if (scoreArray[i].name) tr.appendChild(create('td', 'name-score', `${scoreArray[i].name}`));
-                   else tr.appendChild(create('td', 'name-score', 'Anonymous'));
-                    tr.appendChild(create('td', null, `${scoreArray[i].size}`));
-                    tr.appendChild(create('td', null, `${scoreArray[i].moves}`));
-                } else {
-                    for (let j = 0; j < 3; j++) {
-                        tr.appendChild(create('td'));                }
+            if (scoreArray[i]) {
+                if (scoreArray[i].name) tr.appendChild(create('td', 'name-score', `${scoreArray[i].name}`));
+                else tr.appendChild(create('td', 'name-score', 'Anonymous'));
+                tr.appendChild(create('td', null, `${scoreArray[i].size}`));
+                tr.appendChild(create('td', null, `${scoreArray[i].moves}`));
+            } else {
+                for (let j = 0; j < 3; j++) {
+                    tr.appendChild(create('td'));
+                }
             }
-                childTr.push(tr);
+            childTr.push(tr);
         }
         table = create('div', 'table', childTr);
         table.prepend(nameTable, trHeader);
@@ -375,26 +391,29 @@ export default class Puzzle {
             audioIcon.classList.remove('none-audio');
             audioIcon.classList.add('audio');
             audioField.currentTime = 0;
-                setInterval(()=> {
-                    if (this.isSound)  audioField.play()}, 1);
+            setInterval(() => {
+                if (this.isSound) audioField.play()
+            }, 1);
 
         }, 100);
     }
-    
+
     stopSound() {
         setTimeout(() => {
-        this.isSound = false;
-        audioIcon.classList.add('none-audio');
-        audioIcon.classList.remove('audio');
-        audioField.pause();
-        audioField.currentTime = 0;
-    }, 200);
+            this.isSound = false;
+            audioIcon.classList.add('none-audio');
+            audioIcon.classList.remove('audio');
+            audioField.pause();
+            audioField.currentTime = 0;
+        }, 200);
     }
 
     showMessage() {
+        messageResult.innerHTML = '';
+        nameInput.innerHTML = '';
         clearInterval(this.stopwatch);
-        const hour = +times.innerHTML.slice(0,2);
-        const min = times.innerHTML.slice(3,5);
+        const hour = +times.innerHTML.slice(0, 2);
+        const min = times.innerHTML.slice(3, 5);
         const sec = times.innerHTML.slice(6);
         if (hour) messageResult.innerHTML = `${hour}:`;
         messageResult.innerHTML += `${min}:`;
@@ -404,24 +423,28 @@ export default class Puzzle {
     }
 
     addScore(name) {
+
         const score = {
             name: name,
             size: `${this.numberRows}x${this.numberRows}`,
             moves: this.move
         }
-        localStorage.setItem(`${localStorage.length + 1}`, JSON.stringify(score));
+        if (!(localStorage.getItem(`${localStorage.length - 1}`) == JSON.stringify(score))) {
+            localStorage.setItem(`${localStorage.length}`, JSON.stringify(score));
+        }
     }
 
     setName(e) {
-        let name;
-        if (e.type === 'keypress') {
-            name = nameInput.innerText;
-        }
-       if (e.code === 'Enter') {
-           this.startMenu();
-           this.addScore(name);
+        if (e.code === 'Enter' || e.keyCode === 13) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.addName = true;
+            const name = nameInput.innerHTML;
+            this.startMenu();
+            this.addScore(name);
         }
     }
+
     addPicture() {
         pictureBtn.classList.add('none');
         numberBtn.classList.remove('none');
@@ -430,6 +453,7 @@ export default class Puzzle {
         this.init(arrays.initialArray(this.numberRows));
         continueBtn.classList.add('hide');
     }
+
     removePicture() {
         pictureBtn.classList.remove('none');
         numberBtn.classList.add('none');
@@ -438,4 +462,4 @@ export default class Puzzle {
         this.init(arrays.initialArray(this.numberRows));
         continueBtn.classList.add('hide');
     }
- };
+};

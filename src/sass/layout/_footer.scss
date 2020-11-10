@@ -1,7 +1,7 @@
 .menuBtn {
   font-size: $font-size-h2;
   background-color: #104735;
-  box-shadow: inset rgba(0,0,0,.6) 0 -2px 5px, inset rgba(252,255,255,.7) 0 2px 5px, rgba(0,0,0,.8) 0 2px 5px -1px;
+  box-shadow: inset rgba(0, 0, 0, .6) 0 -2px 5px, inset rgba(252, 255, 255, .7) 0 2px 5px, rgba(0, 0, 0, .8) 0 2px 5px -1px;
   border: 0.1rem solid;
   border-radius: 1rem;
   margin: 1rem 0;
@@ -15,8 +15,9 @@
   outline: none;
 
   &:hover {
-    background-color: rgb(28,107,114);
+    background-color: rgb(28, 107, 114);
   }
+
   &:after {
     content: "";
     background: #2ac992;
