@@ -1,6 +1,7 @@
 import create from "./base/create";
 import getTime from './game/timeStep';
 import * as arrays from './game/arrays';
+import chooseClass from './game/arrays';
 import getScores from './game/scores';
 
 const times = create('span', 'times', ' 00:00:00');
@@ -55,7 +56,7 @@ let table;
 let stopwatchNew = false;
 let stopwatchSave = false;
 
-const audioItem = new Audio('./src/sounds/move.wav');
+const audioItem = new Audio('./src/sounds/move.mp3');
 const audioField = new Audio('./src/sounds/field.mp3');
 const numberPictures = 150;
 
@@ -67,7 +68,7 @@ export default class Puzzle {
         this.game = false;
         this.usePicture = false;
         this.src = '';
-        this.addName = false;
+        //this.arr;
     }
 
     stopwatchF() {
@@ -106,12 +107,12 @@ export default class Puzzle {
         scoreBtn.addEventListener('click', () => this.showScores());
         backBtn.addEventListener('click', () => this.startMenu());
         soundBtn.addEventListener('click', () => {
-            if (!this.isSound) this.playSound();
-            else this.stopSound();
+            !this.isSound ? this.playSound() : this.stopSound()
         });
         nameInput.addEventListener('keypress', (e) => this.setName(e));
         pictureBtn.addEventListener('click', () => this.addPicture());
         numberBtn.addEventListener('click', () => this.removePicture());
+        solutionBtn.addEventListener('click', () => this.solvePuzzle());
     }
 
     getSaveGame() {
@@ -161,8 +162,10 @@ export default class Puzzle {
     showGame() {
         menu.classList.add('hide');
         document.body.innerHTML = '';
-        this.init(arrays.randomArray(this.numberRows));
+        this.arr = arrays.randomArray(this.numberRows);
+        this.init(this.arr.randArray);
         steps.innerHTML = this.move;
+        this.moveArray = [];
         this.stopwatchF();
         this.game = true;
     }
@@ -221,32 +224,35 @@ export default class Puzzle {
     replace(item, doAnimation) {
         const empty = this.itemEmpty.style.order;
         const itemOrder = item.style.order;
+        this.moveArray = this.arr.moveArray;
+        console.log(this.moveArray);
         if (item.style.order !== empty) {
             if (Math.abs(empty - itemOrder) === this.numberRows || Math.abs(empty - itemOrder) === 1) {
-                let classSlide;
+                if (!(((empty + 1) % this.numberRows === 0 || (itemOrder + 1) % this.numberRows === 0) &&
+                    (empty % this.numberRows === 0 || itemOrder % this.numberRows === 0))) {
 
-                if (this.isSound) {
-                    audioItem.currentTime = 0;
-                    audioItem.play();
-                }
-                if (!doAnimation) {
-                    if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
-                    this.itemEmpty.style.setProperty('order', itemOrder);
-                    item.style.setProperty('order', empty);
-                } else {
-                    if ((itemOrder - empty) === 1) classSlide = 'slide-right';
-                    if ((itemOrder - empty) === -1) classSlide = 'slide-left';
-                    if ((itemOrder - empty) === this.numberRows) classSlide = 'slide-top';
-                    if ((itemOrder - empty) === -this.numberRows) classSlide = 'slide-bottom';
-                    item.classList.add(classSlide);
-                    setTimeout(() => {
+                    let classSlide;
+                    this.moveArray.push([+empty, +itemOrder])
+                    if (this.isSound) {
+                        audioItem.currentTime = 0;
+                        audioItem.play();
+                    }
+                    if (!doAnimation) {
+                        if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
                         this.itemEmpty.style.setProperty('order', itemOrder);
                         item.style.setProperty('order', empty);
-                        if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
-                    }, 510);
+                    } else {
+                        const classSlide = chooseClass((itemOrder - empty), this.numberRows);
+                        item.classList.add(classSlide);
+                        setTimeout(() => {
+                            this.itemEmpty.style.setProperty('order', itemOrder);
+                            item.style.setProperty('order', empty);
+                            if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
+                        }, 510);
+                    }
+                    this.move++;
+                    steps.innerHTML = this.move;
                 }
-                this.move++;
-                steps.innerHTML = this.move;
             }
         }
         setTimeout(() => {
@@ -263,7 +269,8 @@ export default class Puzzle {
         if (gameSaved.toString() == this.initArray.toString()) {
             this.showMessage();
             this.game = false;
-        };
+        }
+        ;
     }
 
     chooseGame() {
@@ -423,7 +430,6 @@ export default class Puzzle {
     }
 
     addScore(name) {
-
         const score = {
             name: name,
             size: `${this.numberRows}x${this.numberRows}`,
@@ -435,11 +441,12 @@ export default class Puzzle {
     }
 
     setName(e) {
-        if (e.code === 'Enter' || e.keyCode === 13) {
+        if (e.code === 'Enter') {
+            console.log(e.code);
             e.preventDefault();
-            e.stopPropagation();
-            this.addName = true;
             const name = nameInput.innerHTML;
+            console.log(name);
+
             this.startMenu();
             this.addScore(name);
         }
@@ -461,5 +468,49 @@ export default class Puzzle {
         document.body.innerHTML = '';
         this.init(arrays.initialArray(this.numberRows));
         continueBtn.classList.add('hide');
+    }
+
+    solvePuzzle() {
+        this.stopwatchF();
+        menu.classList.add('hide');
+        const moveArray = !this.moveArray.length ? this.arr.moveArray : this.moveArray;
+        const main = this.main;
+        const numberRows = this.numberRows;
+        const itemEmpty = this.itemEmpty;
+        const stopwatch = this.stopwatch;
+        const isSound = this.isSound;
+        let move = this.move;
+        let game = this.game;
+
+        let i = 1;
+
+        function iteration() {
+            const empty = moveArray[moveArray.length - i][1];
+            const itemOrder = moveArray[moveArray.length - i][0];
+            let item;
+            if (isSound) {
+                audioItem.currentTime = 0;
+                audioItem.play();
+            }
+            for (let i = 0; i < main.childNodes.length - 3; i++) {
+                if (+main.childNodes[i].style.order === itemOrder) {
+                    item = main.childNodes[i];
+                }
+            }
+            const classSlide = chooseClass((itemOrder - empty), numberRows);
+            item.classList.add = classSlide;
+            setTimeout(() => {
+                itemEmpty.style.setProperty('order', itemOrder);
+                item.style.setProperty('order', empty);
+                if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
+            }, 510);
+            if (i === moveArray.length) clearInterval(stopwatch);
+            else setTimeout(() => iteration(), 520);
+            move++;
+            steps.innerHTML = move;
+            i++;
+        }
+
+        iteration();
     }
 };
