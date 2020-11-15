@@ -364,7 +364,7 @@ var Puzzle = /*#__PURE__*/function () {
     this.isSound = false;
     this.game = false;
     this.usePicture = false;
-    this.src = ''; //this.arr;
+    this.src = '';
   }
 
   _createClass(Puzzle, [{
@@ -384,12 +384,7 @@ var Puzzle = /*#__PURE__*/function () {
     value: function init(array) {
       this.initArray = _game_arrays__WEBPACK_IMPORTED_MODULE_2__.initialArray(this.numberRows);
       if (localStorage.getItem('array')) array = this.getSaveGame();
-      this.main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', this.getItems(array)); // if (this.src && this.usePicture) {
-      //     this.main.style.background = `url(${this.src})`;
-      //     this.main.style.backgroundSize = `cover`;
-      //     this.main.style.opacity = '0.5';
-      // }
-
+      this.main = (0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('main', 'container', this.getItems(array));
       this.main.classList.add("size".concat(this.numberRows));
       if (localStorage.getItem('array')) menu.classList.add('hide');
       document.body.prepend((0,_base_create__WEBPACK_IMPORTED_MODULE_0__.default)('div', 'wrapper_body', [header, this.main, footer]));
@@ -559,7 +554,6 @@ var Puzzle = /*#__PURE__*/function () {
       var empty = this.itemEmpty.style.order;
       var itemOrder = item.style.order;
       this.moveArray = this.arr.moveArray;
-      console.log(this.moveArray);
 
       if (item.style.order !== empty) {
         if (Math.abs(empty - itemOrder) === this.numberRows || Math.abs(empty - itemOrder) === 1) {
@@ -817,10 +811,8 @@ var Puzzle = /*#__PURE__*/function () {
     key: "setName",
     value: function setName(e) {
       if (e.code === 'Enter') {
-        console.log(e.code);
         e.preventDefault();
         var name = nameInput.innerHTML;
-        console.log(name);
         this.startMenu();
         this.addScore(name);
       }

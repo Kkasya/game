@@ -68,7 +68,6 @@ export default class Puzzle {
         this.game = false;
         this.usePicture = false;
         this.src = '';
-        //this.arr;
     }
 
     stopwatchF() {
@@ -86,12 +85,6 @@ export default class Puzzle {
         this.initArray = arrays.initialArray(this.numberRows);
         if (localStorage.getItem('array')) array = this.getSaveGame();
         this.main = create('main', 'container', this.getItems(array));
-        // if (this.src && this.usePicture) {
-        //     this.main.style.background = `url(${this.src})`;
-        //     this.main.style.backgroundSize = `cover`;
-        //     this.main.style.opacity = '0.5';
-        // }
-
         this.main.classList.add(`size${this.numberRows}`);
         if (localStorage.getItem('array')) menu.classList.add('hide');
         document.body.prepend(create('div', 'wrapper_body', [header, this.main, footer]));
@@ -225,7 +218,6 @@ export default class Puzzle {
         const empty = this.itemEmpty.style.order;
         const itemOrder = item.style.order;
         this.moveArray = this.arr.moveArray;
-        console.log(this.moveArray);
         if (item.style.order !== empty) {
             if (Math.abs(empty - itemOrder) === this.numberRows || Math.abs(empty - itemOrder) === 1) {
                 if (!(((empty + 1) % this.numberRows === 0 || (itemOrder + 1) % this.numberRows === 0) &&
@@ -442,11 +434,8 @@ export default class Puzzle {
 
     setName(e) {
         if (e.code === 'Enter') {
-            console.log(e.code);
             e.preventDefault();
             const name = nameInput.innerHTML;
-            console.log(name);
-
             this.startMenu();
             this.addScore(name);
         }
@@ -510,7 +499,6 @@ export default class Puzzle {
             steps.innerHTML = move;
             i++;
         }
-
         iteration();
     }
 };

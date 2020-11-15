@@ -13,7 +13,8 @@ export function randomArray(numberRows) {
     const randArray = initArray;
     const moveArray = [];
 
-    for (let i = 0; i < numberRows * numberRows * 30; i++) {
+    for (let i = 0; i < numberRows * numberRows * 30
+        ; i++) {
         const randIndex = Math.floor(Math.random() * Math.floor(initArray.length));
         if (randIndex != emptyIndex) {
             if (Math.abs(emptyIndex - randIndex) == numberRows || Math.abs(emptyIndex - randIndex) == 1) {
