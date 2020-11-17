@@ -21,7 +21,7 @@ html {
 
 body {
   width: 100%;
-  background: url(b01f536b83d5bcb84b09c41e1fbb8fc2.jpg) no-repeat;
+  background: url(b01f536b83d5bcb84b09c41e1fbb8fc2.jpg) 100% repeat;
   background-size: cover;
 }
 

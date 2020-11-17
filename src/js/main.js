@@ -114,6 +114,7 @@ export default class Puzzle {
             this.src = localStorage.getItem('src');
             this.usePicture = true;
         }
+        this.moveArray = JSON.parse((localStorage.getItem('moveArray')));
         this.move = localStorage.getItem('move');
         this.numberRows = +localStorage.getItem('numberRows');
         times.innerHTML = `${localStorage.getItem('hour')}:${localStorage.getItem('min')}:${localStorage.getItem('sec')}`;
@@ -158,7 +159,6 @@ export default class Puzzle {
         this.arr = arrays.randomArray(this.numberRows);
         this.init(this.arr.randArray);
         steps.innerHTML = this.move;
-        this.moveArray = [];
         this.stopwatchF();
         this.game = true;
     }
@@ -170,14 +170,19 @@ export default class Puzzle {
 
         let moveMouse = false;
         let currentDropable = null;
-        let shiftX = e.clientX - item.getBoundingClientRect().left;
-        let shiftY = e.clientY - item.getBoundingClientRect().top;
-
+        const numberRows = this.numberRows;
+        const shiftX = e.clientX - item.getBoundingClientRect().left;
+        const shiftY = e.clientY - item.getBoundingClientRect().top;
+        const widthX = (document.body.offsetWidth < 1281)? (document.body.offsetWidth / 2.91): (document.body.offsetWidth < 1521)? (document.body.offsetWidth / 2.71):  (document.body.offsetWidth / 2.51) ;
+        const heightY = document.body.offsetHeight / 3.84;
         moveAt(e.pageX, e.pageY);
+        console.log(document.body.offsetWidth);
+        console.log(widthX);
+
 
         function moveAt(pageX, pageY) {
-            item.style.left = pageX - shiftX - 560 + 'px';
-            item.style.top = pageY - shiftY - 165 + 'px';
+            item.style.left = pageX - shiftX - widthX + 'px';
+            item.style.top = pageY - shiftY - heightY + 'px';
         }
 
         function onMouseMove(e) {
@@ -199,25 +204,24 @@ export default class Puzzle {
         }
 
         const listen = () => {
-            item.removeEventListener('mousemove', onMouseMove);
             item.removeEventListener('mouseup', listen);
-            item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
+            document.removeEventListener('mousemove', onMouseMove);
             if (main.contains(itemClone)) main.removeChild(itemClone);
-
+            item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
             if (moveMouse) {
                 if (currentDropable === this.itemEmpty) {
                     this.replace(item, false);
                 }
             } else this.replace(item, true);
         };
-        item.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mousemove', onMouseMove);
         item.addEventListener('mouseup', listen);
     }
 
     replace(item, doAnimation) {
         const empty = this.itemEmpty.style.order;
         const itemOrder = item.style.order;
-        this.moveArray = this.arr.moveArray;
+        this.moveArray = this.moveArray ? this.moveArray : this.arr.moveArray;
         if (item.style.order !== empty) {
             if (Math.abs(empty - itemOrder) === this.numberRows || Math.abs(empty - itemOrder) === 1) {
                 if (!(((empty + 1) % this.numberRows === 0 || (itemOrder + 1) % this.numberRows === 0) &&
@@ -340,6 +344,7 @@ export default class Puzzle {
             if (item.style.order) gameSaved[item.style.order] = item.innerHTML;
         });
         localStorage.setItem('array', JSON.stringify(gameSaved));
+        localStorage.setItem('moveArray', JSON.stringify(this.moveArray));
         localStorage.setItem('move', this.move);
         localStorage.setItem('hour', times.innerHTML.slice(0, 2));
         localStorage.setItem('min', times.innerHTML.slice(3, 5));
@@ -438,6 +443,7 @@ export default class Puzzle {
             const name = nameInput.innerHTML;
             this.startMenu();
             this.addScore(name);
+
         }
     }
 
@@ -462,14 +468,15 @@ export default class Puzzle {
     solvePuzzle() {
         this.stopwatchF();
         menu.classList.add('hide');
-        const moveArray = !this.moveArray.length ? this.arr.moveArray : this.moveArray;
+        const moveArray = !this.moveArray ? this.arr.moveArray : this.moveArray;
         const main = this.main;
         const numberRows = this.numberRows;
         const itemEmpty = this.itemEmpty;
         const stopwatch = this.stopwatch;
         const isSound = this.isSound;
         let move = this.move;
-        let game = this.game;
+        this.game = false;
+        document.body.style.pointerEvents = 'none';
 
         let i = 1;
 
@@ -492,13 +499,21 @@ export default class Puzzle {
                 itemEmpty.style.setProperty('order', itemOrder);
                 item.style.setProperty('order', empty);
                 if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
-            }, 510);
-            if (i === moveArray.length) clearInterval(stopwatch);
-            else setTimeout(() => iteration(), 520);
+            }, 550);
+            if (i === moveArray.length) {
+                clearInterval(stopwatch);
+                localStorage.removeItem('array');
+                setTimeout(() => {
+                    menu.classList.remove('hide');
+                    continueBtn.classList.add('hide');
+                    document.body.style.pointerEvents = 'auto';
+                }, 4000);
+            } else setTimeout(() => iteration(), 570);
             move++;
             steps.innerHTML = move;
             i++;
         }
+
         iteration();
     }
 };

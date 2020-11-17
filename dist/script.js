@@ -439,6 +439,7 @@ var Puzzle = /*#__PURE__*/function () {
         this.usePicture = true;
       }
 
+      this.moveArray = JSON.parse(localStorage.getItem('moveArray'));
       this.move = localStorage.getItem('move');
       this.numberRows = +localStorage.getItem('numberRows');
       times.innerHTML = "".concat(localStorage.getItem('hour'), ":").concat(localStorage.getItem('min'), ":").concat(localStorage.getItem('sec'));
@@ -493,7 +494,6 @@ var Puzzle = /*#__PURE__*/function () {
       this.arr = _game_arrays__WEBPACK_IMPORTED_MODULE_2__.randomArray(this.numberRows);
       this.init(this.arr.randArray);
       steps.innerHTML = this.move;
-      this.moveArray = [];
       this.stopwatchF();
       this.game = true;
     }
@@ -507,13 +507,18 @@ var Puzzle = /*#__PURE__*/function () {
       itemClone.style.order = item.style.order;
       var moveMouse = false;
       var currentDropable = null;
+      var numberRows = this.numberRows;
       var shiftX = e.clientX - item.getBoundingClientRect().left;
       var shiftY = e.clientY - item.getBoundingClientRect().top;
+      var widthX = document.body.offsetWidth < 1281 ? document.body.offsetWidth / 2.91 : document.body.offsetWidth < 1521 ? document.body.offsetWidth / 2.71 : document.body.offsetWidth / 2.51;
+      var heightY = document.body.offsetHeight / 3.84;
       moveAt(e.pageX, e.pageY);
+      console.log(document.body.offsetWidth);
+      console.log(widthX);
 
       function moveAt(pageX, pageY) {
-        item.style.left = pageX - shiftX - 560 + 'px';
-        item.style.top = pageY - shiftY - 165 + 'px';
+        item.style.left = pageX - shiftX - widthX + 'px';
+        item.style.top = pageY - shiftY - heightY + 'px';
       }
 
       function onMouseMove(e) {
@@ -531,10 +536,10 @@ var Puzzle = /*#__PURE__*/function () {
       }
 
       var listen = function listen() {
-        item.removeEventListener('mousemove', onMouseMove);
         item.removeEventListener('mouseup', listen);
-        item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
+        document.removeEventListener('mousemove', onMouseMove);
         if (main.contains(itemClone)) main.removeChild(itemClone);
+        item.style.position = item.style.zIndex = item.style.left = item.style.top = null;
 
         if (moveMouse) {
           if (currentDropable === _this3.itemEmpty) {
@@ -543,7 +548,7 @@ var Puzzle = /*#__PURE__*/function () {
         } else _this3.replace(item, true);
       };
 
-      item.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mousemove', onMouseMove);
       item.addEventListener('mouseup', listen);
     }
   }, {
@@ -553,7 +558,7 @@ var Puzzle = /*#__PURE__*/function () {
 
       var empty = this.itemEmpty.style.order;
       var itemOrder = item.style.order;
-      this.moveArray = this.arr.moveArray;
+      this.moveArray = this.moveArray ? this.moveArray : this.arr.moveArray;
 
       if (item.style.order !== empty) {
         if (Math.abs(empty - itemOrder) === this.numberRows || Math.abs(empty - itemOrder) === 1) {
@@ -702,6 +707,7 @@ var Puzzle = /*#__PURE__*/function () {
         if (item.style.order) gameSaved[item.style.order] = item.innerHTML;
       });
       localStorage.setItem('array', JSON.stringify(gameSaved));
+      localStorage.setItem('moveArray', JSON.stringify(this.moveArray));
       localStorage.setItem('move', this.move);
       localStorage.setItem('hour', times.innerHTML.slice(0, 2));
       localStorage.setItem('min', times.innerHTML.slice(3, 5));
@@ -842,14 +848,15 @@ var Puzzle = /*#__PURE__*/function () {
     value: function solvePuzzle() {
       this.stopwatchF();
       menu.classList.add('hide');
-      var moveArray = !this.moveArray.length ? this.arr.moveArray : this.moveArray;
+      var moveArray = !this.moveArray ? this.arr.moveArray : this.moveArray;
       var main = this.main;
       var numberRows = this.numberRows;
       var itemEmpty = this.itemEmpty;
       var stopwatch = this.stopwatch;
       var isSound = this.isSound;
       var move = this.move;
-      var game = this.game;
+      this.game = false;
+      document.body.style.pointerEvents = 'none';
       var i = 1;
 
       function iteration() {
@@ -874,10 +881,20 @@ var Puzzle = /*#__PURE__*/function () {
           itemEmpty.style.setProperty('order', itemOrder);
           item.style.setProperty('order', empty);
           if (item.classList.contains(classSlide)) item.classList.remove(classSlide);
-        }, 510);
-        if (i === moveArray.length) clearInterval(stopwatch);else setTimeout(function () {
+        }, 550);
+
+        if (i === moveArray.length) {
+          clearInterval(stopwatch);
+          localStorage.removeItem('array');
+          setTimeout(function () {
+            menu.classList.remove('hide');
+            continueBtn.classList.add('hide');
+            document.body.style.pointerEvents = 'auto';
+          }, 4000);
+        } else setTimeout(function () {
           return iteration();
-        }, 520);
+        }, 570);
+
         move++;
         steps.innerHTML = move;
         i++;
